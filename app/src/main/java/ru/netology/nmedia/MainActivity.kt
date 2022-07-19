@@ -9,18 +9,31 @@ import java.text.DecimalFormat
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var  likesCount = 1_199_999
+    private var sharesCount = 0
     private lateinit var handler: Handler
     private var isLiked: Boolean = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addBinding()
         countLikes()
+        countShares()
+    }
+
+    private fun countShares() {
+        with(binding){
+            postSharesCount.text = ""
+            shareIcon.setOnClickListener {
+                sharesCount++
+                postSharesCount.text = sharesCount.toString()
+            }
+        }
     }
 
     private fun addBinding() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
     }
+
 
     private fun countLikes() {
         with(binding){
