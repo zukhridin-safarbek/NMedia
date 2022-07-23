@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
     }
 
-
     private fun countLikes() {
         with(binding){
             when {
