@@ -1,10 +1,13 @@
 package ru.netology.nmedia
 
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import java.text.DecimalFormat
 import kotlin.math.floor
 import kotlin.math.log10
 
-class ChangeIntegerToShortForm {
+object ChangeIntegerToShortForm {
     fun changeIntToShortFormWithChar(number: Number): String? {
         val suffix = charArrayOf(' ', 'k', 'M', 'B', 'T', 'P', 'E')
         val numValue = number.toLong()
@@ -32,5 +35,12 @@ class ChangeIntegerToShortForm {
                  }
                  else -> {DecimalFormat("#,##").format(numValue/ 10.0)+suffix[base]}
              }
+    }
+    fun countShares(viewBtn: ImageView, viewTxt: TextView){
+        var share = 0
+        viewBtn.setOnClickListener {
+            share++
+            viewTxt.text = share.toString()
+        }
     }
 }
