@@ -14,18 +14,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addBinding()
+        cons()
         like()
-        with(vm){
-            sharesShortForm()
-            sharesShortForm.observe(this@MainActivity){
-                binding.postSharesCount.text = it
-            }
-        }
+        share()
+    }
+
+    fun cons(){
+        vm = ViewModelProvider(this).get(MainViewModel::class.java)
+        handler = Handler(mainLooper)
     }
 
     private fun like() {
-        vm = ViewModelProvider(this).get(MainViewModel::class.java)
-        handler = Handler(mainLooper)
         when {
             likesCount == 0 -> {
                 binding.postLikesCount.text = ""
@@ -44,17 +43,6 @@ class MainActivity : AppCompatActivity() {
             vm.resultIsLiked.observe(this@MainActivity) {
                 likeIcon.setImageResource(it)
             }
-            shareIcon.setOnClickListener {
-                vm.sharesCount()
-                 handler.postDelayed({
-                     vm.sharesShortForm.observe(this@MainActivity){
-                         postSharesCount.text = (it)
-                     }
-                 }, 500)
-                vm.sharesLongForm.observe(this@MainActivity){
-                    postSharesCount.text = (it)
-                }
-            }
             likeIcon.setOnClickListener {
                 vm.countLikes(likesCount)
                 with(vm) {
@@ -68,6 +56,29 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
+            }
+        }
+    }
+
+    private fun share(){
+        with(vm){
+            sharesShortForm()
+            sharesLongForm.observe(this@MainActivity){
+                binding.postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
+            }
+        }
+        with(binding){
+            shareIcon.setOnClickListener {
+                vm.sharesCount()
+                handler.postDelayed({
+                        vm.sharesLongForm.observe(this@MainActivity){
+                            postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
+                        }
+
+                }, 500)
+                vm.sharesLongForm.observe(this@MainActivity){
+                    postSharesCount.text = it
+                }
             }
         }
     }

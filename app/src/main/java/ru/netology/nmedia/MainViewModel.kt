@@ -11,7 +11,6 @@ class MainViewModel : ViewModel() {
     val resultIsLiked = MutableLiveData<Int>()
     val likesLongForm = MutableLiveData<String>()
     val likesShortForm = MutableLiveData<String>()
-    val sharesShortForm = MutableLiveData<String>()
     val sharesLongForm = MutableLiveData<String>()
     private var isLiked = false
     private var shares: Int = 1236
@@ -51,11 +50,10 @@ class MainViewModel : ViewModel() {
         println(like)
     }
     fun sharesShortForm(){
-        sharesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(shares)
+        sharesLongForm.value = shares.toString()
     }
     fun sharesCount(){
          shares++
-        sharesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(shares)
         sharesLongForm.value = shares.toString()
     }
 
