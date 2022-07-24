@@ -16,6 +16,9 @@ object ChangeIntegerToShortForm {
         val base = value / 3
         println("numValue: $numValue, value: $value, base: $base, Q: $q")
              return when(value){
+                 in 0..2 ->{
+                     return numValue.toString()
+                 }
                 in 3..5 -> {
                     if (value == 3 && (numValue % 1000 >= 100)){
                         return DecimalFormat("#,#").format(numValue / 1_00)+suffix[base]
@@ -35,12 +38,5 @@ object ChangeIntegerToShortForm {
                  }
                  else -> {DecimalFormat("#,##").format(numValue/ 10.0)+suffix[base]}
              }
-    }
-    fun countShares(viewBtn: ImageView, viewTxt: TextView){
-        var share = 0
-        viewBtn.setOnClickListener {
-            share++
-            viewTxt.text = share.toString()
-        }
     }
 }

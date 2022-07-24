@@ -15,6 +15,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         addBinding()
         like()
+        with(vm){
+            sharesShortForm()
+            sharesShortForm.observe(this@MainActivity){
+                binding.postSharesCount.text = it
+            }
+        }
     }
 
     private fun like() {
@@ -38,7 +44,17 @@ class MainActivity : AppCompatActivity() {
             vm.resultIsLiked.observe(this@MainActivity) {
                 likeIcon.setImageResource(it)
             }
-            ChangeIntegerToShortForm.countShares(shareIcon, postSharesCount)
+            shareIcon.setOnClickListener {
+                vm.sharesCount()
+                 handler.postDelayed({
+                     vm.sharesShortForm.observe(this@MainActivity){
+                         postSharesCount.text = (it)
+                     }
+                 }, 500)
+                vm.sharesLongForm.observe(this@MainActivity){
+                    postSharesCount.text = (it)
+                }
+            }
             likeIcon.setOnClickListener {
                 vm.countLikes(likesCount)
                 with(vm) {

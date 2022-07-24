@@ -11,7 +11,10 @@ class MainViewModel : ViewModel() {
     val resultIsLiked = MutableLiveData<Int>()
     val likesLongForm = MutableLiveData<String>()
     val likesShortForm = MutableLiveData<String>()
+    val sharesShortForm = MutableLiveData<String>()
+    val sharesLongForm = MutableLiveData<String>()
     private var isLiked = false
+    private var shares: Int = 1236
     init {
         Log.e("AAA", "VM created")
     }
@@ -47,6 +50,16 @@ class MainViewModel : ViewModel() {
         }
         println(like)
     }
+    fun sharesShortForm(){
+        sharesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(shares)
+    }
+    fun sharesCount(){
+         shares++
+        sharesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(shares)
+        sharesLongForm.value = shares.toString()
+    }
+
+
     override fun onCleared() {
         Log.e("AAA", "VM cleared")
         super.onCleared()
