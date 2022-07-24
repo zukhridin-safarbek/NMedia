@@ -5,9 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-
-
         <ImageView
             android:layout_margin="20dp"
             android:id="@+id/post_logo_header"
@@ -95,7 +92,7 @@
                 android:src="@drawable/ic_heart_svgrepo_com"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="20dp"
                 />
             <TextView
                 android:id="@+id/post_likes_count"
@@ -147,7 +144,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:text="865"
-                android:layout_marginEnd="10dp"
+                android:layout_marginEnd="20dp"
                 android:textSize="@dimen/post_items_fun_count_integers_size"
                 android:textColor="@color/gray"
                 android:layout_marginStart="10dp"
