@@ -30,6 +30,8 @@
                app:layout_constraintTop_toTopOf="@+id/post_logo_header"
                app:layout_constraintEnd_toStartOf="@+id/post_menu_btn_header"
                app:layout_constraintStart_toEndOf="@+id/post_logo_header"
+               app:layout_constrainedWidth="true"
+               tools:text="@tools:sample/lorem/random"
                android:textStyle="bold" />
            <TextView
                android:id="@+id/post_header_published_date"
@@ -38,8 +40,13 @@
                android:text="@string/published_date"
                app:layout_constraintTop_toBottomOf="@+id/post_header_title"
                app:layout_constraintStart_toStartOf="@+id/post_header_title"
-               android:paddingBottom="20dp"
-               android:textSize="16sp" />
+               app:layout_constraintEnd_toStartOf="@+id/post_menu_btn_header"
+               android:paddingEnd="20dp"
+               tools:text="@tools:sample/lorem/random"
+               android:ellipsize="end"
+               android:singleLine="true"
+               android:textSize="16sp"
+               tools:ignore="RtlSymmetry" />
         <ImageButton
             android:id="@+id/post_menu_btn_header"
             android:layout_width="wrap_content"
@@ -66,8 +73,11 @@
             app:layout_constraintTop_toBottomOf="@+id/barrier2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:padding="20dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:paddingTop="10dp"
             android:textSize="16sp"
+
             />
 
     <androidx.constraintlayout.widget.Barrier
@@ -75,13 +85,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="post_description" />
+        app:constraint_referenced_ids="post_description, post_header_published_date" />
 
 
             <ImageView
                 android:id="@+id/like_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/post_items_fun_count_icons_size"
+                android:layout_height="@dimen/post_items_fun_count_icons_size"
                 android:src="@drawable/ic_heart_svgrepo_com"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintStart_toStartOf="parent"
@@ -90,20 +100,21 @@
             <TextView
                 android:id="@+id/post_likes_count"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:text="12"
-                android:textSize="20sp"
+                android:textSize="@dimen/post_items_fun_count_texts_size"
                 android:textColor="@color/gray"
                 android:layout_marginStart="10dp"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintStart_toEndOf="@+id/like_icon"
                 app:layout_constraintBottom_toBottomOf="@+id/like_icon"
+                android:gravity="center"
                 />
 
             <ImageView
                 android:id="@+id/share_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/post_items_fun_count_icons_size"
+                android:layout_height="@dimen/post_items_fun_count_icons_size"
                 android:src="@drawable/ic_baseline_share_24"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintStart_toEndOf="@+id/post_likes_count"
@@ -112,19 +123,20 @@
             <TextView
                 android:id="@+id/post_shares_count"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="23"
-                android:textSize="20sp"
+                android:layout_height="0dp"
+                android:text="657"
+                android:textSize="@dimen/post_items_fun_count_texts_size"
                 android:textColor="@color/gray"
                 android:layout_marginStart="10dp"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintStart_toEndOf="@+id/share_icon"
                 app:layout_constraintBottom_toBottomOf="@+id/share_icon"
+                android:gravity="center"
                 />
             <ImageView
                 android:id="@+id/view_icon"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="@dimen/post_items_fun_count_icons_size"
+                android:layout_height="@dimen/post_items_fun_count_icons_size"
                 android:src="@drawable/ic_baseline_visibility_24"
                 app:layout_constraintTop_toTopOf="@id/post_views_count"
                 app:layout_constraintEnd_toStartOf="@+id/post_views_count"
@@ -133,15 +145,17 @@
             <TextView
                 android:id="@+id/post_views_count"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="5"
+                android:layout_height="0dp"
+                android:text="865"
                 android:layout_marginEnd="10dp"
-                android:textSize="20sp"
+                android:textSize="@dimen/post_items_fun_count_texts_size"
                 android:textColor="@color/gray"
                 android:layout_marginStart="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/barrier3"
+                app:layout_constraintTop_toBottomOf="@+id/barrier3"
                 app:layout_constraintBottom_toBottomOf="@+id/view_icon"
                 android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:singleLine="true"
                 />
 </androidx.constraintlayout.widget.ConstraintLayout>
