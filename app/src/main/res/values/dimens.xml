@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="post_items_fun_count_texts_size">16sp</dimen>
+    <dimen name="post_items_fun_count_integers_size">16sp</dimen>
     <dimen name="post_items_fun_count_icons_size">25dp</dimen>
 </resources>
