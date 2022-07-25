@@ -1,60 +1,72 @@
 package ru.netology.nmedia
 
 import android.util.Log
-import android.widget.ImageView
-import android.widget.TextView
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import java.text.DecimalFormat
 
 class MainViewModel : ViewModel() {
-    val resultIsLiked = MutableLiveData<Int>()
-    val likesLongForm = MutableLiveData<String>()
-    val likesShortForm = MutableLiveData<String>()
-    val sharesLongForm = MutableLiveData<String>()
+    private val resultIsLikedMutable = MutableLiveData<Int>()
+    val resultIsLiked: LiveData<Int> = resultIsLikedMutable
+    private val likesLongFormMutable = MutableLiveData<String>()
+    val likesLongForm: LiveData<String> = likesLongFormMutable
+    private val likesShortFormMutable = MutableLiveData<String>()
+    val likesShortForm: LiveData<String> = likesShortFormMutable
+    private val sharesLongFormMutable = MutableLiveData<String>()
+    val sharesLongForm: LiveData<String> = sharesLongFormMutable
     private var isLiked = false
-    private var shares: Int = 1236
+    private var shares: Int = 1_236_466
+    private var like: Long = 1_199_999
+    var likeVM = like.toString()
+
     init {
         Log.e("AAA", "VM created")
     }
-    fun likesShortFormFunc(like: Int){
-        if (isLiked){
-            likesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(like + 1)
-        }else {
-            likesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
+
+
+    fun likesShortFormFunc() {
+        if (isLiked) {
+            likesShortFormMutable.value =
+                ChangeIntegerToShortForm.changeIntToShortFormWithChar(like + 1)
+        } else {
+            likesShortFormMutable.value =
+                ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
         }
     }
-    fun countLikes(likesCount: Int){
-        var like = likesCount
-        if (!isLiked){
+
+    fun countLikes() {
+        if (!isLiked) {
             like++
             isLiked = true
-            resultIsLiked.value = R.drawable.ic_like_svgrepo_com
-            if (likesCount < 1000){
-                likesLongForm.value = like.toString()
-            }else {
-                likesLongForm.value = like.toString()
-                likesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
+            resultIsLikedMutable.value = R.drawable.ic_like_svgrepo_com
+            if (like < 1000) {
+                likesLongFormMutable.value = like.toString()
+            } else {
+                likesLongFormMutable.value = like.toString()
+                likesShortFormMutable.value =
+                    ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
             }
-        }else{
-            like = (likesCount + 1) - 1
+        } else {
+            like--
             isLiked = false
-            resultIsLiked.value = R.drawable.ic_heart_svgrepo_com
-            if (likesCount < 1000){
-                likesLongForm.value = like.toString()
-            }else {
-                likesLongForm.value = like.toString()
-                likesShortForm.value = ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
+            resultIsLikedMutable.value = R.drawable.ic_heart_svgrepo_com
+            if (like < 1000) {
+                likesLongFormMutable.value = like.toString()
+            } else {
+                likesLongFormMutable.value = like.toString()
+                likesShortFormMutable.value =
+                    ChangeIntegerToShortForm.changeIntToShortFormWithChar(like)
             }
         }
-        println(like)
     }
-    fun sharesShortForm(){
-        sharesLongForm.value = shares.toString()
+
+    fun sharesShortForm() {
+        sharesLongFormMutable.value = shares.toString()
     }
-    fun sharesCount(){
-         shares++
-        sharesLongForm.value = shares.toString()
+
+    fun sharesCount() {
+        shares++
+        sharesLongFormMutable.value = shares.toString()
     }
 
 

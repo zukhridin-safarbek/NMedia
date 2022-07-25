@@ -8,7 +8,6 @@ import ru.netology.nmedia.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var likesCount = 1_199_999
     private lateinit var vm: MainViewModel
     private lateinit var handler: Handler
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,23 +18,26 @@ class MainActivity : AppCompatActivity() {
         share()
     }
 
-    fun cons(){
+    private fun cons() {
         vm = ViewModelProvider(this).get(MainViewModel::class.java)
         handler = Handler(mainLooper)
     }
 
     private fun like() {
+        val likeVM = vm.likeVM.toLong()
         when {
-            likesCount == 0 -> {
+            likeVM == 0L -> {
                 binding.postLikesCount.text = ""
             }
-            likesCount < 1000 -> {
-                binding.postLikesCount.text = likesCount.toString()
+            likeVM < 1000L -> {
+                binding.postLikesCount.text = likeVM.toString()
+                println(likeVM)
             }
             else -> {
-                vm.likesShortFormFunc(likesCount)
+                vm.likesShortFormFunc()
                 vm.likesShortForm.observe(this) {
                     binding.postLikesCount.text = it
+                    println(it)
                 }
             }
         }
@@ -44,10 +46,10 @@ class MainActivity : AppCompatActivity() {
                 likeIcon.setImageResource(it)
             }
             likeIcon.setOnClickListener {
-                vm.countLikes(likesCount)
                 with(vm) {
+                    countLikes()
                     handler.postDelayed({
-                        vm.likesShortForm.observe(this@MainActivity) {
+                        likesShortForm.observe(this@MainActivity) {
                             binding.postLikesCount.text = it
                         }
                     }, 500)
@@ -60,28 +62,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun share(){
-        with(vm){
+    private fun share() {
+        with(vm) {
             sharesShortForm()
-            sharesLongForm.observe(this@MainActivity){
-                binding.postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
+            sharesLongForm.observe(this@MainActivity) {
+                binding.postSharesCount.text =
+                    ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
             }
         }
-        with(binding){
+        with(binding) {
             shareIcon.setOnClickListener {
                 vm.sharesCount()
                 handler.postDelayed({
-                        vm.sharesLongForm.observe(this@MainActivity){
-                            postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
-                        }
+                    vm.sharesLongForm.observe(this@MainActivity) {
+                        postSharesCount.text =
+                            ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
+                    }
 
                 }, 500)
-                vm.sharesLongForm.observe(this@MainActivity){
+                vm.sharesLongForm.observe(this@MainActivity) {
                     postSharesCount.text = it
                 }
             }
         }
     }
+
     private fun addBinding() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
