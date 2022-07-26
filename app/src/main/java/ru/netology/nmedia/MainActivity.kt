@@ -2,86 +2,60 @@ package ru.netology.nmedia
 
 import android.os.Bundle
 import android.os.Handler
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import ru.netology.nmedia.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var vm: MainViewModel
     private lateinit var handler: Handler
+    private val postVM: PostViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addBinding()
-        cons()
-        like()
-        share()
+        controls()
+        postControl()
     }
 
-    private fun cons() {
-        vm = ViewModelProvider(this).get(MainViewModel::class.java)
+    private fun controls() {
         handler = Handler(mainLooper)
     }
 
-    private fun like() {
-        val likeVM = vm.likeVM.toLong()
-        when {
-            likeVM == 0L -> {
-                binding.postLikesCount.text = ""
-            }
-            likeVM < 1000L -> {
-                binding.postLikesCount.text = likeVM.toString()
-                println(likeVM)
-            }
-            else -> {
-                vm.likesShortFormFunc()
-                vm.likesShortForm.observe(this) {
-                    binding.postLikesCount.text = it
-                    println(it)
-                }
+    private fun postControl(){
+        postVM.data.observe(this){post ->
+            with(binding){
+                postHeaderTitle.text = post.author
+                postHeaderPublishedDate.text = post.publishedDate
+                postDescription.text = post.content
+                likeIcon.setImageResource(
+                    if (post.likedByMe) R.drawable.ic_like_svgrepo_com else R.drawable.ic_heart_svgrepo_com
+                )
+                postLikesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.likes)
+                postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.shares)
             }
         }
-        with(binding) {
-            vm.resultIsLiked.observe(this@MainActivity) {
-                likeIcon.setImageResource(it)
-            }
-            likeIcon.setOnClickListener {
-                with(vm) {
-                    countLikes()
+        binding.likeIcon.setOnClickListener {
+            postVM.like()
+            postVM.data.observe(this){post ->
+                with(binding){
                     handler.postDelayed({
-                        likesShortForm.observe(this@MainActivity) {
-                            binding.postLikesCount.text = it
-                        }
+                        postLikesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.likes)
                     }, 500)
-                    likesLongForm.observe(this@MainActivity) {
-                        postLikesCount.text = it
-                    }
+                    postLikesCount.text = post.likes.toString()
                 }
-
             }
         }
-    }
 
-    private fun share() {
-        with(vm) {
-            sharesShortForm()
-            sharesLongForm.observe(this@MainActivity) {
-                binding.postSharesCount.text =
-                    ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
-            }
-        }
-        with(binding) {
-            shareIcon.setOnClickListener {
-                vm.sharesCount()
-                handler.postDelayed({
-                    vm.sharesLongForm.observe(this@MainActivity) {
-                        postSharesCount.text =
-                            ChangeIntegerToShortForm.changeIntToShortFormWithChar(it.toInt())
-                    }
-
-                }, 500)
-                vm.sharesLongForm.observe(this@MainActivity) {
-                    postSharesCount.text = it
+        binding.shareIcon.setOnClickListener {
+            postVM.share()
+            postVM.data.observe(this){ post ->
+                with(binding){
+                    handler.postDelayed({
+                        postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.shares)
+                    }, 500)
+                    postSharesCount.text = post.shares.toString()
                 }
             }
         }
