@@ -15,12 +15,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         addBinding()
-        controls()
         postControl()
-    }
-
-    private fun controls() {
-        handler = Handler(mainLooper)
     }
 
     private fun postControl(){
@@ -38,26 +33,10 @@ class MainActivity : AppCompatActivity() {
         }
         binding.likeIcon.setOnClickListener {
             postVM.like()
-            postVM.data.observe(this){post ->
-                with(binding){
-                    handler.postDelayed({
-                        postLikesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.likes)
-                    }, 500)
-                    postLikesCount.text = post.likes.toString()
-                }
-            }
         }
 
         binding.shareIcon.setOnClickListener {
             postVM.share()
-            postVM.data.observe(this){ post ->
-                with(binding){
-                    handler.postDelayed({
-                        postSharesCount.text = ChangeIntegerToShortForm.changeIntToShortFormWithChar(post.shares)
-                    }, 500)
-                    postSharesCount.text = post.shares.toString()
-                }
-            }
         }
     }
 

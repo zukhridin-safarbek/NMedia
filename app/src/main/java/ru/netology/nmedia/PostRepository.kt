@@ -16,7 +16,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         content = "Привет, этоо новая Нетология! Когда-то Нетология начиналась",
         publishedDate = "21 may at 12 pm",
         likedByMe = false,
-        likes = 678,
+        likes = 6756768,
         shares = 124
     )
 
