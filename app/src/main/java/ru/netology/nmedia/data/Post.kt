@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.data
 
 data class Post(
     val id: Long,

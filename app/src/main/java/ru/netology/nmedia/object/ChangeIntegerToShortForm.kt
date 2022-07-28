@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.`object`
 import java.text.DecimalFormat
 import kotlin.math.log10
 

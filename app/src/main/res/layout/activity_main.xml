@@ -1,154 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activity.MainActivity">
 
-    <ImageView
-        android:id="@+id/post_logo_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:src="@drawable/ic_netology"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="@+id/post_header_published_date"
-        app:layout_constraintTop_toTopOf="@id/post_header_title" />
-
-    <TextView
-        android:id="@+id/post_header_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:ellipsize="end"
-        android:singleLine="true"
-        android:text="@string/title"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        app:layout_constrainedWidth="true"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/post_menu_btn_header"
-        app:layout_constraintStart_toEndOf="@+id/post_logo_header"
-        tools:text="@tools:sample/lorem/random" />
-
-    <TextView
-        android:id="@+id/post_header_published_date"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:paddingEnd="20dp"
-        android:singleLine="true"
-        android:text="@string/published_date"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toStartOf="@+id/post_menu_btn_header"
-        app:layout_constraintStart_toStartOf="@+id/post_header_title"
-        app:layout_constraintTop_toBottomOf="@+id/post_header_title"
-        tools:ignore="RtlSymmetry"
-        tools:text="@tools:sample/lorem/random" />
-
-    <ImageButton
-        android:id="@+id/post_menu_btn_header"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_baseline_more_vert_24"
-        app:layout_constraintBottom_toBottomOf="@id/post_header_published_date"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.Barrier
-        android:id="@+id/barrier2"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:barrierDirection="bottom"
-        app:constraint_referenced_ids="post_logo_header, post_header_published_date, post_menu_btn_header" />
-
-    <TextView
-        android:id="@+id/post_description"
+    <LinearLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="20dp"
-        android:paddingTop="10dp"
-        android:paddingEnd="20dp"
-        android:text="@string/description"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barrier2"
+        android:orientation="vertical"
+        >
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/card_post_layout"
+            tools:itemCount="3"
+            >
 
-        />
+        </androidx.recyclerview.widget.RecyclerView>
+    </LinearLayout>
 
-
-    <ImageView
-        android:id="@+id/like_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/ic_heart_svgrepo_com"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <TextView
-        android:id="@+id/post_likes_count"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:gravity="center"
-        android:text="12"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/like_icon"
-        app:layout_constraintStart_toEndOf="@+id/like_icon"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <ImageView
-        android:id="@+id/share_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/ic_baseline_share_24"
-        app:layout_constraintStart_toEndOf="@+id/post_likes_count"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <TextView
-        android:id="@+id/post_shares_count"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:gravity="center"
-        android:text="657"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/share_icon"
-        app:layout_constraintStart_toEndOf="@+id/share_icon"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <ImageView
-        android:id="@+id/view_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:layout_marginEnd="10dp"
-        android:src="@drawable/ic_baseline_visibility_24"
-        app:layout_constraintEnd_toStartOf="@+id/post_views_count"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <TextView
-        android:id="@+id/post_views_count"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="20dp"
-        android:gravity="center"
-        android:singleLine="true"
-        android:text="865"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/view_icon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/post_description" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

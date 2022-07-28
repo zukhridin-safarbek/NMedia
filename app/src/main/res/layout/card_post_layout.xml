@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="20dp"
+    >
+
+    <ImageView
+        android:id="@+id/postAvatar"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:src="@drawable/ic_netology"
+        app:layout_constraintBottom_toBottomOf="@+id/postPublishedDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/postAuthor" />
+
+    <TextView
+        android:id="@+id/postAuthor"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:text="@string/title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constrainedWidth="true"
+        app:layout_constraintEnd_toStartOf="@+id/postMenuBtn"
+        app:layout_constraintStart_toEndOf="@+id/postAvatar"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@tools:sample/lorem/random" />
+
+    <TextView
+        android:id="@+id/postPublishedDate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:paddingEnd="20dp"
+        android:singleLine="true"
+        android:text="@string/published_date"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@+id/postMenuBtn"
+        app:layout_constraintStart_toStartOf="@+id/postAuthor"
+        app:layout_constraintTop_toBottomOf="@+id/postAuthor"
+        tools:ignore="RtlSymmetry"
+        tools:text="@tools:sample/lorem/random" />
+
+    <ImageButton
+        android:id="@+id/postMenuBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_baseline_more_vert_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/postAuthor" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/postHeaderBarrier"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="postAvatar, postPublishedDate, postMenuBtn" />
+
+    <TextView
+        android:id="@+id/postContent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:text="@string/description"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postHeaderBarrier"
+
+        />
+
+
+    <ImageView
+        android:id="@+id/like_icon"
+        android:layout_width="@dimen/post_items_fun_count_icons_size"
+        android:layout_height="@dimen/post_items_fun_count_icons_size"
+        android:src="@drawable/ic_heart_svgrepo_com"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+
+    <TextView
+        android:id="@+id/post_likes_count"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:text="12"
+        android:textColor="@color/gray"
+        android:textSize="@dimen/post_items_fun_count_integers_size"
+        app:layout_constraintBottom_toBottomOf="@+id/like_icon"
+        app:layout_constraintStart_toEndOf="@+id/like_icon"
+        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+
+    <ImageView
+        android:id="@+id/share_icon"
+        android:layout_width="@dimen/post_items_fun_count_icons_size"
+        android:layout_height="@dimen/post_items_fun_count_icons_size"
+        android:layout_marginStart="20dp"
+        android:src="@drawable/ic_baseline_share_24"
+        app:layout_constraintStart_toEndOf="@+id/post_likes_count"
+        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+
+    <TextView
+        android:id="@+id/post_shares_count"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:gravity="center"
+        android:text="657"
+        android:textColor="@color/gray"
+        android:textSize="@dimen/post_items_fun_count_integers_size"
+        app:layout_constraintBottom_toBottomOf="@+id/share_icon"
+        app:layout_constraintStart_toEndOf="@+id/share_icon"
+        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+
+    <ImageView
+        android:id="@+id/view_icon"
+        android:layout_width="@dimen/post_items_fun_count_icons_size"
+        android:layout_height="@dimen/post_items_fun_count_icons_size"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/ic_baseline_visibility_24"
+        app:layout_constraintEnd_toStartOf="@+id/post_views_count"
+        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+
+    <TextView
+        android:id="@+id/post_views_count"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        android:gravity="center"
+        android:singleLine="true"
+        android:text="865"
+        android:textColor="@color/gray"
+        android:textSize="@dimen/post_items_fun_count_integers_size"
+        app:layout_constraintBottom_toBottomOf="@+id/view_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/postContent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
