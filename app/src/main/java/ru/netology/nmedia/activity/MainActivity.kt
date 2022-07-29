@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         addBinding()
         postControl()
+
+
     }
 
     private fun postControl(){

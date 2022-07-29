@@ -14,7 +14,7 @@ interface PostRepository {
 }
 
 class PostRepositoryInMemoryImpl : PostRepository{
-    private  var nextId: Long = 0
+    private  var nextId: Long = 1
     private var posts = listOf(
         Post(
             id = nextId++,
@@ -71,6 +71,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         var like: Long
         posts = posts.map { post ->
             like = post.likes
+            println(post.id)
             if (!post.likedByMe){
                 like++
             }else {

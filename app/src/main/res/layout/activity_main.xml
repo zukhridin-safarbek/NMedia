@@ -43,6 +43,7 @@
         android:importantForAutofill="no"
         android:hint="@string/app_name"
         android:background="@null"
+        android:backgroundTint="@null"
         />
     <ImageButton
         android:id="@+id/save"
