@@ -1,11 +1,16 @@
 package ru.netology.nmedia.activity
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import ru.netology.nmedia.R
+import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.util.AndroidUtils
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -17,14 +22,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun postControl(){
-        val adapter = PostsAdapter({
-            postVM.shareByID(it.id)
-        },{
-            postVM.likeById(it.id)
+        val adapter = PostsAdapter(object : OnInteractionListener{
+            override fun onLike(post: Post) {
+                postVM.likeById(post.id)
+            }
+
+            override fun onShare(post: Post) {
+                postVM.shareByID(post.id)
+            }
+
+            override fun onEdit(post: Post) {
+                postVM.edit(post)
+            }
+
+            override fun onRemove(post: Post) {
+                postVM.removeById(post.id)
+            }
+
         })
         binding.list.adapter = adapter
+        postVM.edited.observe(this){
+            if (it.id != 0L){
+                binding.content.requestFocus()
+                binding.content.setText(it.content)
+            }
+        }
         postVM.data.observe(this){post ->
-            adapter.submitList(post)
+            val newPost = adapter.itemCount < post.size
+            adapter.submitList(post){
+                if (newPost){
+                    binding.list.smoothScrollToPosition(0)
+                }
+            }
+        }
+
+
+            binding.save.setOnClickListener {
+                with(binding.content){
+                val text = text.toString()
+                if (text.isBlank()){
+                    Toast.makeText(this@MainActivity, R.string.empty_content, Toast.LENGTH_LONG).show()
+                    return@setOnClickListener
+                }
+                postVM.changeContent(text)
+                postVM.save()
+                setText("")
+                clearFocus()
+                AndroidUtils.hideKeyboard(it)
+
+            }
         }
     }
 

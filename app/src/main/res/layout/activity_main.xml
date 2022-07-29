@@ -1,27 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        >
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/card_post_layout"
-            tools:itemCount="3"
+            tools:itemCount="30"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/barrierForEditPoly"
             >
-
         </androidx.recyclerview.widget.RecyclerView>
-    </LinearLayout>
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierForEditPoly"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:barrierDirection="top"
+        app:constraint_referenced_ids="content"
+        />
+    <EditText
+        android:id="@+id/content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/save"
+        app:layout_constraintStart_toStartOf="parent"
+        android:inputType="textMultiLine"
+        android:importantForAutofill="no"
+        android:hint="@string/app_name"
+        />
+    <ImageButton
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:padding="5dp"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_baseline_task_alt_24"
+        android:background="@android:color/transparent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/content"
+        app:layout_constraintStart_toEndOf="@+id/content"
+        tools:ignore="ContentDescription" />
 
-</ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,16 +5,20 @@ import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.data.Post
 
 interface PostRepository {
+
     fun getAll(): LiveData<List<Post>>
     fun likeById(id: Long)
     fun shareById(id: Long)
+    fun removeById(id: Long)
+    fun save(post: Post)
 }
 
 class PostRepositoryInMemoryImpl : PostRepository{
+    private  var nextId: Long = 0
     private var posts = listOf(
         Post(
-            id = 5,
-            author = "Нетология. Университет интернет-профессий будущего",
+            id = nextId++,
+            author = "$nextId Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Знаний хватить на всех: на следующей неделе разбираемся с рЗнаний хватить на всех: на следующей неделе разбираемся с р",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -22,8 +26,8 @@ class PostRepositoryInMemoryImpl : PostRepository{
             shares = 1242342
         ),
         Post(
-            id = 4,
-            author = "Нетология. Университет интернет-профессий будущего",
+            id = nextId++,
+            author = "$nextId Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -31,8 +35,8 @@ class PostRepositoryInMemoryImpl : PostRepository{
             shares = 12436
         ),
         Post(
-            id = 3,
-            author = "Нетология. Университет интернет-профессий будущего",
+            id = nextId++,
+            author = " $nextId Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -40,8 +44,8 @@ class PostRepositoryInMemoryImpl : PostRepository{
             shares = 124156
         ),
         Post(
-            id = 2,
-            author = "Нетология. Университет интернет-профессий будущего",
+            id = nextId++,
+            author = "$nextId Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -49,8 +53,8 @@ class PostRepositoryInMemoryImpl : PostRepository{
             shares = 12421
         ),
         Post(
-            id = 1,
-            author = "Нетология. Университет интернет-профессий будущего",
+            id = nextId++,
+            author = "$nextId Нетология. Университет интернет-профессий будущего",
             content = "Привет, этоо новая Нетология! Когда-то Нетология начиналась Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 may at 12 pm",
             likedByMe = false,
@@ -58,6 +62,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
             shares = 12378
         )
     )
+
 
     private val data = MutableLiveData(posts)
     override fun getAll(): LiveData<List<Post>>  = data
@@ -93,5 +98,22 @@ class PostRepositoryInMemoryImpl : PostRepository{
         }
         data.value = posts
     }
+
+    override fun removeById(id: Long) {
+        posts = posts.filter { it.id != id }
+        data.value = posts
+    }
+
+    override fun save(post: Post) {
+        posts = if (post.id == 0L){
+             listOf(post.copy(id = nextId++, author = "${nextId} Netology", publishedDate = "now"))+posts
+        }else{
+            posts.map {
+                if (post.id != it.id) it else it.copy(content = post.content)
+            }
+        }
+        data.value = posts
+    }
+
 
 }
