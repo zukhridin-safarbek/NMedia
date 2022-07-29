@@ -22,7 +22,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:barrierDirection="top"
-        app:constraint_referenced_ids="content"
+        app:constraint_referenced_ids="content, lineWithBlackBackground, save"
+        />
+    <TextView
+        android:id="@+id/lineWithBlackBackground"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#C0C0C0"
+        app:layout_constraintTop_toBottomOf="@id/barrierForEditPoly"
         />
     <EditText
         android:id="@+id/content"
@@ -35,6 +42,7 @@
         android:inputType="textMultiLine"
         android:importantForAutofill="no"
         android:hint="@string/app_name"
+        android:background="@null"
         />
     <ImageButton
         android:id="@+id/save"
