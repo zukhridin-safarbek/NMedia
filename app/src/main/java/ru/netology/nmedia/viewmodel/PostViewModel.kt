@@ -31,7 +31,7 @@ class PostViewModel : ViewModel() {
             }
             edited.value = it.copy(content = text)
         }
-        group.visibility = View.GONE
+//        group.visibility = View.GONE
     }
     fun edit(post: Post){
         edited.value = post

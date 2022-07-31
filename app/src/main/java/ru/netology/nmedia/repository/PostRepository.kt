@@ -20,7 +20,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
     private var posts = listOf(
         Post(
             id = nextId++,
-            author = "$nextId Нетология. Университет интернет-профессий будущего",
+            author = "Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Знаний хватить на всех: на следующей неделе разбираемся с рЗнаний хватить на всех: на следующей неделе разбираемся с р",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -29,7 +29,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         ),
         Post(
             id = nextId++,
-            author = "$nextId Нетология. Университет интернет-профессий будущего",
+            author = "Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -38,7 +38,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         ),
         Post(
             id = nextId++,
-            author = " $nextId Нетология. Университет интернет-профессий будущего",
+            author = " Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -47,7 +47,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         ),
         Post(
             id = nextId++,
-            author = "$nextId Нетология. Университет интернет-профессий будущего",
+            author = "Нетология. Университет интернет-профессий будущего",
             content = "Знаний хватить на всех: на следующей неделе разбираемся с р Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 september at 8 pm",
             likedByMe = false,
@@ -56,7 +56,7 @@ class PostRepositoryInMemoryImpl : PostRepository{
         ),
         Post(
             id = nextId++,
-            author = "$nextId Нетология. Университет интернет-профессий будущего",
+            author = "Нетология. Университет интернет-профессий будущего",
             content = "Привет, этоо новая Нетология! Когда-то Нетология начиналась Нетология. Университет интернет-профессий будущего Нетология. Университет интернет-профессий будущего",
             publishedDate = "21 may at 12 pm",
             likedByMe = false,

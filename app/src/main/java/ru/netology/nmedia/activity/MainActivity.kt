@@ -31,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 postVM.likeById(post.id)
+                iterator<Post> {
+                    postVM.data
+                    println(this)
+                }
+
             }
 
             override fun onShare(post: Post) {
@@ -42,8 +47,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onRemove(post: Post) {
-                binding.content.setText("")
-                binding.editedModeGroup.visibility = View.GONE
+//                binding.content.setText("")
+//                binding.editedModeGroup.visibility = View.GONE
                 postVM.removeById(post.id)
             }
 
