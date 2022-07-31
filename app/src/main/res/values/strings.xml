@@ -5,4 +5,6 @@
     <string name="menu_edit">Edit</string>
     <string name="edit_post">Edit post</string>
     <string name="empty_content">Error empty content</string>
+    <string name="netology">Netology</string>
+    <string name="edit_message">Edit message</string>
 </resources>

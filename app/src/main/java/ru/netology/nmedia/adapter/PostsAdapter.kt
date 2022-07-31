@@ -11,24 +11,27 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 
-interface OnInteractionListener{
+interface OnInteractionListener {
     fun onLike(post: Post)
     fun onShare(post: Post)
     fun onEdit(post: Post)
     fun onRemove(post: Post)
 }
+
 class PostsAdapter(
-    private val onInteractionListener: OnInteractionListener
+    private val onInteractionListener: OnInteractionListener,
 ) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
     class PostViewHolder(
         private val binding: CardPostLayoutBinding,
-        private val onInteractionListener: OnInteractionListener
+        private val onInteractionListener: OnInteractionListener,
     ) : RecyclerView.ViewHolder(binding.root) {
         private var itemPost: Post? = null
         private val likeOnClickListener: View.OnClickListener = View.OnClickListener {
-            itemPost?.let { post -> onInteractionListener.onLike(post) }
+            itemPost?.let { post ->
+                onInteractionListener.onLike(post)
+            }
         }
-        private val shareOnClickListener : View.OnClickListener = View.OnClickListener {
+        private val shareOnClickListener: View.OnClickListener = View.OnClickListener {
             itemPost?.let { post -> onInteractionListener.onShare(post) }
         }
 
@@ -49,11 +52,11 @@ class PostsAdapter(
                 )
                 itemPost = post
                 postMenuBtn.setOnClickListener {
-                    PopupMenu(it.context, it).apply{
+                    PopupMenu(it.context, it).apply {
                         inflate(R.menu.options_post)
                         setOnMenuItemClickListener { item ->
-                            when(item.itemId){
-                                R.id.remove ->{
+                            when (item.itemId) {
+                                R.id.remove -> {
                                     onInteractionListener.onRemove(post)
                                     true
                                 }

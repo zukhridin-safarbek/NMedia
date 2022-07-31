@@ -6,4 +6,6 @@
     <string name="edit_post">Редактирование поста</string>
     <string name="empty_content">Ошибка пустое содержимое</string>
     <string name="menu_edit">Редактировать</string>
+    <string name="netology">Нетология</string>
+    <string name="edit_message">Редактировать сообщение</string>
 </resources>
