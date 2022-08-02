@@ -31,10 +31,6 @@ class MainActivity : AppCompatActivity() {
         val adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 postVM.likeById(post.id)
-                iterator<Post> {
-                    postVM.data
-                    println(this)
-                }
 
             }
 
@@ -44,24 +40,23 @@ class MainActivity : AppCompatActivity() {
 
             override fun onEdit(post: Post) {
                 postVM.edit(post)
+                postVM.edited.observe(this@MainActivity) {
+                    if (it.id != 0L) {
+                        binding.editedModeGroup.visibility = View.VISIBLE
+                        binding.editedTextView.text = it.content
+                        binding.content.requestFocus()
+                        binding.content.setText(it.content)
+                    }
+                }
             }
 
             override fun onRemove(post: Post) {
-//                binding.content.setText("")
-//                binding.editedModeGroup.visibility = View.GONE
                 postVM.removeById(post.id)
             }
 
         })
         binding.list.adapter = adapter
-        postVM.edited.observe(this) {
-            if (it.id != 0L) {
-                binding.editedModeGroup.visibility = View.VISIBLE
-                binding.editedTextView.text = it.content
-                binding.content.requestFocus()
-                binding.content.setText(it.content)
-            }
-        }
+
         postVM.data.observe(this) { post ->
             val newPost = adapter.itemCount < post.size
             adapter.submitList(post) {

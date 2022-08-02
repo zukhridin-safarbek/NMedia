@@ -105,6 +105,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="?attr/colorControlNormal"
+        android:clickable="false"
+        android:checkable="false"
         app:icon="@drawable/ic_baseline_visibility_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/like_icon"

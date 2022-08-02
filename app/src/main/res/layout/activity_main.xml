@@ -69,12 +69,12 @@
         app:layout_constraintStart_toEndOf="@id/editIcon"
         tools:text="Netology" />
 
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/closeEditMode"
+        style="@style/Widget.AppTheme.Tint.Icons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="5dp"
-        android:src="@drawable/ic_baseline_close_24"
+        app:icon="@drawable/ic_baseline_close_24"
         app:layout_constraintBottom_toBottomOf="@id/editedTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/textEditMessage" />
