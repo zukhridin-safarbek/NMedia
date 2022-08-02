@@ -45,11 +45,10 @@ class PostsAdapter(
                 postAuthor.text = post.author
                 postPublishedDate.text = post.publishedDate
                 postContent.text = post.content
-                postLikesCount.text = post.likes.toString()
-                postSharesCount.text = post.shares.toString()
-                likeIcon.setImageResource(
-                    if (post.likedByMe) R.drawable.ic_like_svgrepo_com else R.drawable.ic_heart_svgrepo_com
-                )
+                likeIcon.text = post.likes.toString()
+                shareIcon.text = post.shares.toString()
+                likeIcon.isChecked = post.likedByMe
+                viewIcon.text = (12434).toString()
                 itemPost = post
                 postMenuBtn.setOnClickListener {
                     PopupMenu(it.context, it).apply {

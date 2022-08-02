@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.AppTheme.Tint.Icons" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="iconTint">@color/gray_tint_icons</item>
+        <item name="android:minWidth">@dimen/icon_button_min_size</item>
+        <item name="android:minHeight">@dimen/icon_button_min_size</item>
+    </style>
+</resources>

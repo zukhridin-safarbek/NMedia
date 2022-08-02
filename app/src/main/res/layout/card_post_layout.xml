@@ -5,8 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp"
-    >
+    android:padding="20dp">
 
     <ImageView
         android:id="@+id/postAvatar"
@@ -72,75 +71,44 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/postHeaderBarrier"
-        tools:text="@tools:sample/lorem"
-        />
+        tools:text="@tools:sample/lorem" />
 
 
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/like_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:src="@drawable/ic_heart_svgrepo_com"
+        style="@style/Widget.AppTheme.LikeCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:checkable="true"
+        android:contentDescription="like"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/ic_like_24dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+        app:layout_constraintTop_toBottomOf="@id/postContent"
+        tools:text="12" />
 
-    <TextView
-        android:id="@+id/post_likes_count"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:gravity="center"
-        android:text="12"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/like_icon"
-        app:layout_constraintStart_toEndOf="@+id/like_icon"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/share_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:layout_marginStart="20dp"
-        android:src="@drawable/ic_baseline_share_24"
-        app:layout_constraintStart_toEndOf="@+id/post_likes_count"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <TextView
-        android:id="@+id/post_shares_count"
+        style="@style/Widget.AppTheme.Tint.Icons"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:gravity="center"
-        android:text="657"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/share_icon"
-        app:layout_constraintStart_toEndOf="@+id/share_icon"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/ic_baseline_share_24"
+        app:layout_constraintStart_toEndOf="@+id/like_icon"
+        app:layout_constraintTop_toTopOf="@id/like_icon"
+        tools:text="134" />
 
-    <ImageView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/view_icon"
-        android:layout_width="@dimen/post_items_fun_count_icons_size"
-        android:layout_height="@dimen/post_items_fun_count_icons_size"
-        android:layout_marginEnd="10dp"
-        android:src="@drawable/ic_baseline_visibility_24"
-        app:layout_constraintEnd_toStartOf="@+id/post_views_count"
-        app:layout_constraintTop_toTopOf="@id/post_views_count" />
-
-    <TextView
-        android:id="@+id/post_views_count"
+        style="@style/Widget.AppTheme.Tint.Icons"
         android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="15dp"
-        android:gravity="center"
-        android:singleLine="true"
-        android:text="865"
-        android:textColor="@color/gray"
-        android:textSize="@dimen/post_items_fun_count_integers_size"
-        app:layout_constraintBottom_toBottomOf="@+id/view_icon"
+        android:layout_height="wrap_content"
+        android:textColor="?attr/colorControlNormal"
+        app:icon="@drawable/ic_baseline_visibility_24"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/postContent" />
+        app:layout_constraintTop_toTopOf="@id/like_icon"
+        tools:text="512" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
