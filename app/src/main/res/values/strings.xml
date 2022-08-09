@@ -7,4 +7,7 @@
     <string name="empty_content">Error empty content</string>
     <string name="netology">Netology</string>
     <string name="edit_message">Edit message</string>
+    <string name="add_or_edit_post">add or edit post</string>
+    <string name="share_post">Share post</string>
+    <string name="video_link">Video link</string>
 </resources>

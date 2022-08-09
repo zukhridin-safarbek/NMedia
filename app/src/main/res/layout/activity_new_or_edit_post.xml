@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:id="@+id/bottomAppBar"
+            style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:contentDescription="@string/add_or_edit_post"
+            app:layout_anchor="@id/bottomAppBar"
+            app:srcCompat="@drawable/ic_baseline_add_24" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <EditText
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@null"
+        android:gravity="top"
+        android:hint="@string/app_name"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@id/videoUrl"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/videoUrl"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@null"
+        android:gravity="center_vertical"
+        android:hint="@string/video_link"
+        android:importantForAutofill="no"
+        android:inputType="textUri"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@id/footer" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,6 +17,7 @@ interface OnInteractionListener {
     fun onShare(post: Post)
     fun onEdit(post: Post)
     fun onRemove(post: Post)
+    fun playVideo(post: Post)
 }
 
 class PostsAdapter(
@@ -49,6 +51,12 @@ class PostsAdapter(
                 shareIcon.text = post.shares.toString()
                 likeIcon.isChecked = post.likedByMe
                 viewIcon.text = (12434).toString()
+                if (!post.videoLink.isNullOrBlank()){
+                    playBtn.visibility = View.VISIBLE
+                    playBtn.setOnClickListener {
+                        onInteractionListener.playVideo(post)
+                    }
+                }
                 itemPost = post
                 postMenuBtn.setOnClickListener {
                     PopupMenu(it.context, it).apply {

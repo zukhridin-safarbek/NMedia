@@ -1,7 +1,5 @@
 package ru.netology.nmedia
 
-import android.view.View
-import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.data.Post
@@ -109,10 +107,10 @@ class PostRepositoryInMemoryImpl : PostRepository{
 
     override fun save(post: Post) {
         posts = if (post.id == 0L){
-             listOf(post.copy(id = nextId++, author = "${nextId} Netology", publishedDate = "now"))+posts
+             listOf(post.copy(id = nextId++, author = "Netology", publishedDate = "now"))+posts
         }else{
             posts.map {
-                if (post.id != it.id) it else it.copy(content = post.content)
+                if (post.id != it.id) it else it.copy(content = post.content, videoLink = post.videoLink)
             }
         }
         data.value = posts

@@ -1,8 +1,6 @@
 package ru.netology.nmedia.viewmodel
 
 
-import android.view.View
-import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.PostRepository
@@ -22,23 +20,18 @@ private val empty = Post(
 class PostViewModel : ViewModel() {
     private val repository: PostRepository = PostRepositoryInMemoryImpl()
     val data = repository.getAll()
-    val edited = MutableLiveData(empty)
-    fun changeContent(content: String, group: Group){
-        edited.value?.let {
-            val text = content.trim()
-            if (it.content == text){
-                return
-            }
-            edited.value = it.copy(content = text)
-        }
-//        group.visibility = View.GONE
-    }
+    private val edited = MutableLiveData(empty)
     fun edit(post: Post){
         edited.value = post
     }
-    fun save(){
+    fun changeContentAndSave(content: String?, url: String?){
+            val text = content?.trim()
+            val urlText = url?.trim()
+            if (edited.value?.content == text && edited.value?.videoLink == urlText){
+                return
+            }
         edited.value?.let {
-            repository.save(it)
+            repository.save(it.copy(content = text.toString(), videoLink = urlText))
         }
         edited.value = empty
     }

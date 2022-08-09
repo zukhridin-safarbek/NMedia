@@ -8,4 +8,6 @@
     <string name="menu_edit">Редактировать</string>
     <string name="netology">Нетология</string>
     <string name="edit_message">Редактировать сообщение</string>
+    <string name="add_or_edit_post">Добавить или Редактрировать поста</string>
+    <string name="share_post">Поделиться поста</string>
 </resources>
