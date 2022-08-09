@@ -73,7 +73,11 @@ class MainActivity : AppCompatActivity() {
                 if (Uri.parse(post.videoLink).isAbsolute) {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(post.videoLink)))
                 } else {
-                    Snackbar.make(binding.root, "it is no link!", Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(binding.root, "it is no link!", Snackbar.LENGTH_SHORT)
+                        .setAction(R.string.edit_post) {
+                            onEdit(post)
+                        }
+                        .show()
                 }
             }
 

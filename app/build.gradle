@@ -5,6 +5,10 @@ plugins {
 
 android {
     compileSdk 31
+    
+        lintOptions {
+            baseline file("lint-baseline.xml")
+        }
 
     defaultConfig {
         applicationId "ru.netology.nmedia"
