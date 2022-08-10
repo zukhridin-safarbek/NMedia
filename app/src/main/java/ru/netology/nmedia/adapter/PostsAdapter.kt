@@ -56,6 +56,8 @@ class PostsAdapter(
                     playBtn.setOnClickListener {
                         onInteractionListener.playVideo(post)
                     }
+                }else{
+                    playBtn.visibility = View.GONE
                 }
                 itemPost = post
                 postMenuBtn.setOnClickListener {
