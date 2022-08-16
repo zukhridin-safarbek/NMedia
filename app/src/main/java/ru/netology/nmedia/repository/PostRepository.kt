@@ -178,7 +178,7 @@ class PostRepositorySharedPrefsImpl(private val context: Context) : PostReposito
 
     override fun save(post: Post) {
         posts = if (post.id == 0L) {
-            listOf(post.copy(id = nextId++, author = "Netology", publishedDate = "now")) + posts
+            listOf(post.copy(id = (posts.size + 1).toLong(), author = "${(posts.size + 1).toLong()} Netology", publishedDate = "now")) + posts
         } else {
             posts.map {
                 if (post.id != it.id) it else it.copy(content = post.content,
@@ -255,7 +255,7 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
 
     override fun save(post: Post) {
         posts = if (post.id == 0L) {
-            listOf(post.copy(id = nextId++, author = "Netology", publishedDate = "now")) + posts
+            listOf(post.copy(id = (posts.size + 1).toLong(), author = "${(posts.size + 1).toLong()} Netology", publishedDate = "now")) + posts
         } else {
             posts.map {
                 if (post.id != it.id) it else it.copy(content = post.content,
