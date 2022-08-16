@@ -1,6 +1,7 @@
 package ru.netology.nmedia.`object`
 
 import android.os.Bundle
+import ru.netology.nmedia.data.Post
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 

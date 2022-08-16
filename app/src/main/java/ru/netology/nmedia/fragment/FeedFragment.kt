@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -24,7 +25,7 @@ import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 
-class FeedFragment : Fragment() {
+class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
@@ -109,7 +110,7 @@ class FeedFragment : Fragment() {
                 }
             }
 
-        })
+        }, this)
 
 
         binding.list.adapter = adapter
@@ -134,9 +135,19 @@ class FeedFragment : Fragment() {
         binding = FragmentFeedBinding.inflate(layoutInflater)
         bundle = Bundle()
     }
+
+    override fun onClick(post: Post) {
+        findNavController().navigate(R.id.action_feedFragment_to_detailFragment, Bundle().apply {
+            postId = post.id.toString()
+        })
+    }
+
     companion object {
         var Bundle.content: String? by DataTransferArg
         var Bundle.link: String? by DataTransferArg
         var Bundle.postId: String? by DataTransferArg
     }
+}
+interface ItemListener {
+    fun onClick(post: Post)
 }

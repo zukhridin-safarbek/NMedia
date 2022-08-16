@@ -13,6 +13,7 @@
             android:name=".activity.AppActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
+            <nav-graph android:value="@navigation/graph_nav"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
