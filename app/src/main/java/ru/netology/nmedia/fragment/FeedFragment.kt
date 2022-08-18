@@ -6,24 +6,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.activity.NewPostFragment
-import ru.netology.nmedia.activity.NewPostFragment.Companion.contentText
-import ru.netology.nmedia.activity.NewPostFragment.Companion.linkText
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.contentText
+import ru.netology.nmedia.fragment.NewPostFragment.Companion.linkText
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
+import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -44,24 +42,6 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
-        postOnSave()
-    }
-
-    private fun postOnSave(){
-        var content: String?
-        var link: String?
-        arguments?.let {
-            it.contentText.let { text->
-                content = text
-                println(text)
-            }
-            it.linkText.let { text->
-                link = text
-            }
-            if (!content.isNullOrEmpty()){
-                viewModel.changeContentAndSave(content, link)
-            }
-        }
     }
 
 
@@ -90,10 +70,8 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
                     content = post.content
                     link = post.videoLink
-                    postId = post.id.toString()
                 })
             }
-
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }

@@ -14,7 +14,6 @@ import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.databinding.FragmentEditDetailPostBinding
 import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
 import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
-import ru.netology.nmedia.fragment.DetailFragment.Companion.detailPostId
 import ru.netology.nmedia.fragment.FeedFragment.Companion.content
 import ru.netology.nmedia.fragment.FeedFragment.Companion.link
 import ru.netology.nmedia.util.AndroidUtils
@@ -22,7 +21,9 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 class EditDetailPostFragment: Fragment() {
     private lateinit var binding: FragmentEditDetailPostBinding
-    private val viewModel: PostViewModel by viewModels()
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -38,15 +39,8 @@ class EditDetailPostFragment: Fragment() {
         binding.ok.setOnClickListener {
             AndroidUtils.hideKeyboard(requireView())
             if (!binding.content.text.isNullOrEmpty()){
-
-                    findNavController().navigate(R.id.action_editDetailPostFragment_to_detailFragment,
-                        Bundle().apply {
-                            detailContentText = binding.content.text.toString()
-                            detailLinkText = binding.videoUrl.text.toString()
-                            detailIdPostEdit = arguments?.detailPostId
-                        }
-                        )
-
+                viewModel.changeContentAndSave(binding.content.text.toString(), binding.videoUrl.text.toString())
+                findNavController().navigateUp()
             }else{
                 Toast.makeText(requireContext(), "Empty!", Toast.LENGTH_SHORT).show()
             }

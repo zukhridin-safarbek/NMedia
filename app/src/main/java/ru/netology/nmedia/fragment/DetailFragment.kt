@@ -9,20 +9,13 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.activity.NewPostFragment.Companion.contentText
-import ru.netology.nmedia.activity.NewPostFragment.Companion.linkText
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
-import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailContentText
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
-import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailLinkText
-import ru.netology.nmedia.fragment.FeedFragment.Companion.content
-import ru.netology.nmedia.fragment.FeedFragment.Companion.link
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -53,7 +46,6 @@ class DetailFragment : Fragment(), OnInteractionListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         arguments?.postId?.let {
             postId = it.toLong()
         }
@@ -93,7 +85,6 @@ class DetailFragment : Fragment(), OnInteractionListener {
                     }
                 }
             }
-        postOnSave()
 
     }
     override fun onLike(post: Post) {
@@ -115,16 +106,15 @@ class DetailFragment : Fragment(), OnInteractionListener {
 
     override fun onEdit(post: Post) {
         viewModel.edit(post)
-        findNavController().navigate(R.id.action_detailFragment_to_editDetailPostFragment,
-            Bundle().apply {
-                detailContent = post.content
-                detailLink = post.videoLink
-                detailPostId = post.id.toString()
-            })
+        findNavController().navigate(R.id.action_detailFragment_to_editDetailPostFragment, Bundle().apply {
+            detailContent = post.content
+            detailLink = post.videoLink
+        })
     }
 
     override fun onRemove(post: Post) {
         viewModel.removeById(post.id)
+        findNavController().navigateUp()
     }
 
     override fun playVideo(post: Post) {
@@ -136,22 +126,6 @@ class DetailFragment : Fragment(), OnInteractionListener {
                     onEdit(post)
                 }
                 .show()
-        }
-    }
-    private fun postOnSave(){
-        var content: String?
-        var link: String?
-        arguments?.let {
-            it.detailContentText.let { text->
-                content = text
-            }
-            it.detailLinkText.let { text->
-                link = text
-            }
-            if (!content.isNullOrEmpty()){
-                    viewModel.changeContentAndSave(content, link)
-
-            }
         }
     }
 
@@ -176,6 +150,5 @@ class DetailFragment : Fragment(), OnInteractionListener {
     companion object {
         var Bundle.detailContent: String? by DataTransferArg
         var Bundle.detailLink: String? by DataTransferArg
-        var Bundle.detailPostId: String? by DataTransferArg
     }
 }
