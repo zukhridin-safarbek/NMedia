@@ -50,6 +50,9 @@ class PostDaoImpl(private val db: SQLiteDatabase): PostDao {
             put(PostColumns.COLUMN_AUTHOR, "Netology")
             put(PostColumns.COLUMN_CONTENT, post.content)
             put(PostColumns.COLUMN_PUBLISHED, "now")
+            put(PostColumns.COLUMN_LIKED_BY_ME, post.likedByMe)
+            put(PostColumns.COLUMN_LIKES, post.likes)
+            put(PostColumns.COLUMN_SHARES, post.shares)
             put(PostColumns.COLUMN_VIDEO_URL, post.videoLink)
         }
         val id = db.replace(PostColumns.TABLE, null, values)
