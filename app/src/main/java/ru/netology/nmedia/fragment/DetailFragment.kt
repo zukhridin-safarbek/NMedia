@@ -9,20 +9,15 @@ import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.activity.NewPostFragment.Companion.contentText
-import ru.netology.nmedia.activity.NewPostFragment.Companion.linkText
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailContentText
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailLinkText
-import ru.netology.nmedia.fragment.FeedFragment.Companion.content
-import ru.netology.nmedia.fragment.FeedFragment.Companion.link
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
 

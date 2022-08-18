@@ -1,4 +1,4 @@
-package ru.netology.nmedia.activity
+package ru.netology.nmedia.fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +12,6 @@ import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.fragment.FeedFragment.Companion.content
 import ru.netology.nmedia.fragment.FeedFragment.Companion.link
-import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 
@@ -20,6 +19,7 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 class NewPostFragment : Fragment() {
     lateinit var binding: FragmentNewPostBinding
     private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
     )
     private fun root(){
         binding = FragmentNewPostBinding.inflate(layoutInflater)
