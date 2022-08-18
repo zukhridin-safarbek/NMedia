@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.fragment.FeedFragment.Companion.content
@@ -41,11 +40,8 @@ class NewPostFragment : Fragment() {
         binding.ok.setOnClickListener {
             AndroidUtils.hideKeyboard(requireView())
             if (!binding.content.text.isNullOrEmpty()){
-                findNavController().navigate(R.id.action_newPostFragment_to_feedFragment, Bundle().apply {
-                    contentText = binding.content.text.toString()
-                    linkText = binding.videoUrl.text.toString()
-                    parentFragmentManager.popBackStack()
-                })
+                viewModel.changeContentAndSave(binding.content.text.toString(), binding.videoUrl.text.toString())
+                findNavController().navigateUp()
 
             }else{
                 Toast.makeText(requireContext(), "Empty!", Toast.LENGTH_SHORT).show()

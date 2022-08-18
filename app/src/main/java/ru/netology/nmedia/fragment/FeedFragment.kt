@@ -20,6 +20,8 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
+import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -40,24 +42,6 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
-        postOnSave()
-    }
-
-    private fun postOnSave(){
-        var content: String?
-        var link: String?
-        arguments?.let {
-            it.contentText.let { text->
-                content = text
-                println(text)
-            }
-            it.linkText.let { text->
-                link = text
-            }
-            if (!content.isNullOrEmpty()){
-                viewModel.changeContentAndSave(content, link)
-            }
-        }
     }
 
 
@@ -86,10 +70,8 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
                     content = post.content
                     link = post.videoLink
-                    postId = post.id.toString()
                 })
             }
-
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
