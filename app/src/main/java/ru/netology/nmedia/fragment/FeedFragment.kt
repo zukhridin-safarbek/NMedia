@@ -1,6 +1,8 @@
 package ru.netology.nmedia.fragment
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -42,6 +44,11 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
+        if (!viewModel.draftContent.value.isNullOrEmpty() || !viewModel.draftVideoLink.value.isNullOrEmpty()){
+
+            binding.addOrEditBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
+            binding.addOrEditBtn.drawable.setTint(Color.WHITE)
+        }
     }
 
 

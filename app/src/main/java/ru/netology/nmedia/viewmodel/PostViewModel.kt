@@ -31,6 +31,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: PostRepository = PostRepositorySQLiteImpl(
         AppDb.getInstance(application).postDao
     )
+    val draftContent = MutableLiveData<String>()
+    val draftVideoLink = MutableLiveData<String>()
     val data = repository.getAll()
     private val edited = MutableLiveData(empty)
     fun edit(post: Post){
