@@ -65,6 +65,9 @@ class NewPostFragment : Fragment() {
                 if (!binding.content.text.isNullOrEmpty() || !binding.videoUrl.text.isNullOrEmpty()) {
                     viewModel.draftContent.value = binding.content.text.toString()
                     viewModel.draftVideoLink.value = binding.videoUrl.text.toString()
+                }else{
+                    viewModel.draftContent.value = ""
+                    viewModel.draftVideoLink.value = ""
                 }
                 findNavController().navigateUp()
             }
