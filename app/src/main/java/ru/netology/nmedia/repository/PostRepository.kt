@@ -178,7 +178,7 @@ class PostRepositorySharedPrefsImpl(private val context: Context) : PostReposito
 
     override fun save(post: Post) {
         posts = if (post.id == 0L) {
-            listOf(post.copy(id = nextId++, author = "Netology", publishedDate = "now")) + posts
+            listOf(post.copy(id = (posts.size + 1).toLong(), author = "${(posts.size + 1).toLong()} Netology", publishedDate = "now")) + posts
         } else {
             posts.map {
                 if (post.id != it.id) it else it.copy(content = post.content,
@@ -202,9 +202,10 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
     private val gson = Gson()
     private val type = TypeToken.getParameterized(List::class.java, Post::class.java).type
     private val filename = "posts.json"
-    private var nextId: Long = 1
+    private var nextId = 1L
     private var posts = emptyList<Post>()
     private val data = MutableLiveData(posts)
+
 
 
     init {
@@ -255,13 +256,14 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
 
     override fun save(post: Post) {
         posts = if (post.id == 0L) {
-            listOf(post.copy(id = nextId++, author = "Netology", publishedDate = "now")) + posts
+            listOf(post.copy(id = nextId, author = "$nextId Netology", publishedDate = "now")) + posts
         } else {
             posts.map {
                 if (post.id != it.id) it else it.copy(content = post.content,
                     videoLink = post.videoLink)
             }
         }
+        nextId++
         data.value = posts
         sync()
     }

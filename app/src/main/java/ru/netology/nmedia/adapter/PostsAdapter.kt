@@ -1,6 +1,5 @@
 package ru.netology.nmedia.adapter
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.fragment.ItemListener
 
 interface OnInteractionListener {
     fun onLike(post: Post)
@@ -22,6 +22,7 @@ interface OnInteractionListener {
 
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
+    private val listener: ItemListener
 ) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
     class PostViewHolder(
         private val binding: CardPostLayoutBinding,
@@ -42,7 +43,7 @@ class PostsAdapter(
             binding.shareIcon.setOnClickListener(shareOnClickListener)
         }
 
-        fun bind(post: Post) {
+        fun bind(post: Post, listener: ItemListener) {
             binding.apply {
                 postAuthor.text = post.author
                 postPublishedDate.text = post.publishedDate
@@ -79,6 +80,9 @@ class PostsAdapter(
                     }.show()
                 }
             }
+            itemView.setOnClickListener {
+                listener.onClick(post)
+            }
         }
     }
 
@@ -91,7 +95,7 @@ class PostsAdapter(
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = getItem(position)
-        holder.bind(post)
+        holder.bind(post, listener)
     }
 
 

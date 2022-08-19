@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+
+        <ImageView
+            android:id="@+id/postAvatar"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:src="@drawable/ic_netology"
+            app:layout_constraintBottom_toBottomOf="@+id/postPublishedDate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/postAuthor" />
+
+        <TextView
+            android:id="@+id/postAuthor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constrainedWidth="true"
+            app:layout_constraintEnd_toStartOf="@+id/postMenuBtn"
+            app:layout_constraintStart_toEndOf="@+id/postAvatar"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="@tools:sample/lorem/random" />
+
+        <TextView
+            android:id="@+id/postPublishedDate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:paddingEnd="20dp"
+            android:singleLine="true"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/postMenuBtn"
+            app:layout_constraintStart_toStartOf="@+id/postAuthor"
+            app:layout_constraintTop_toBottomOf="@+id/postAuthor"
+            tools:ignore="RtlSymmetry"
+            tools:text="@tools:sample/lorem/random" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/postMenuBtn"
+            style="@style/Widget.AppTheme.Tint.Icons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:icon="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/postAuthor" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/postHeaderBarrier"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="postAvatar, postPublishedDate, postMenuBtn" />
+
+        <RelativeLayout
+            android:id="@+id/playBtn"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postHeaderBarrier">
+
+            <ImageView
+                android:id="@+id/videoView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/img"
+                android:scaleType="centerCrop"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageView
+                android:id="@+id/videoPlayBtn"
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_centerInParent="true"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_marginBottom="4dp"
+                android:src="@drawable/ic_baseline_play_circle_24" />
+        </RelativeLayout>
+
+
+        <TextView
+            android:id="@+id/postContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/playBtn"
+            tools:text="@tools:sample/lorem/random" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/like_icon"
+            style="@style/Widget.AppTheme.LikeCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checkable="true"
+            android:contentDescription="like"
+            android:textColor="?attr/colorControlNormal"
+            app:icon="@drawable/ic_like_24dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/postContent"
+            tools:text="12" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/share_icon"
+            style="@style/Widget.AppTheme.Tint.Icons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textColor="?attr/colorControlNormal"
+            app:icon="@drawable/ic_baseline_share_24"
+            app:layout_constraintStart_toEndOf="@+id/like_icon"
+            app:layout_constraintTop_toTopOf="@id/like_icon"
+            tools:text="134" />
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/view_icon"
+            style="@style/Widget.AppTheme.Tint.Icons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:drawableStart="@drawable/ic_baseline_visibility_24"
+            android:drawablePadding="4dp"
+            android:textColor="?attr/colorControlNormal"
+            app:drawableTint="#757575"
+            app:layout_constraintBottom_toBottomOf="@id/like_icon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/like_icon"
+            tools:text="512" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
