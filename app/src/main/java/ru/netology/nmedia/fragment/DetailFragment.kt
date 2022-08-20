@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.data.Post
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId

@@ -14,16 +14,12 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.contentText
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.linkText
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
-import ru.netology.nmedia.data.Post
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
-import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
-import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -77,6 +73,7 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
                     content = post.content
                     link = post.videoLink
+                    checkForDraft = "clickedEditBtn"
                 })
             }
             override fun onRemove(post: Post) {
@@ -110,7 +107,9 @@ class FeedFragment : Fragment(), ItemListener {
         }
 
         binding.addOrEditBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,Bundle().apply {
+                checkForDraft = "clickedAddBtn"
+            })
         }
 
     }
@@ -131,6 +130,7 @@ class FeedFragment : Fragment(), ItemListener {
         var Bundle.content: String? by DataTransferArg
         var Bundle.link: String? by DataTransferArg
         var Bundle.postId: String? by DataTransferArg
+        var Bundle.checkForDraft: String? by DataTransferArg
     }
 }
 interface ItemListener {

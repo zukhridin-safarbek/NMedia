@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
-import ru.netology.nmedia.data.Post
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.fragment.ItemListener
 
