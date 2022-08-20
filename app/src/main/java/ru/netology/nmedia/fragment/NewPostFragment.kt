@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.`object`.DataTransferArg
+import ru.netology.nmedia.fragment.FeedFragment.Companion.checkForDraft
 import ru.netology.nmedia.fragment.FeedFragment.Companion.content
 import ru.netology.nmedia.fragment.FeedFragment.Companion.link
 import ru.netology.nmedia.util.AndroidUtils
@@ -39,13 +40,7 @@ class NewPostFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        postOnEdit()
-        viewModel.draftContent.observe(viewLifecycleOwner) {
-            binding.content.setText(it)
-        }
-        viewModel.draftVideoLink.observe(viewLifecycleOwner) {
-            binding.videoUrl.setText(it)
-        }
+        checkClickedBtn()
         binding.content.requestFocus()
         binding.ok.setOnClickListener {
             AndroidUtils.hideKeyboard(requireView())
@@ -60,6 +55,37 @@ class NewPostFragment : Fragment() {
                 Toast.makeText(requireContext(), "Empty!", Toast.LENGTH_SHORT).show()
             }
         }
+
+        if (arguments?.checkForDraft != "clickedEditBtn"){
+            ownOnBack()
+        }
+    }
+
+    private fun checkClickedBtn(){
+        when (arguments?.checkForDraft){
+            "clickedEditBtn" -> postOnEdit()
+            "clickedAddBtn" -> draft()
+        }
+    }
+    private fun postOnEdit() {
+        arguments?.content?.let {
+            binding.content.setText(it)
+        }
+        arguments?.link?.let {
+            binding.videoUrl.setText(it)
+        }
+    }
+
+    private fun draft(){
+        viewModel.draftContent.observe(viewLifecycleOwner) {
+            binding.content.setText(it)
+        }
+        viewModel.draftVideoLink.observe(viewLifecycleOwner) {
+            binding.videoUrl.setText(it)
+        }
+    }
+
+    private fun ownOnBack(){
         val callBack = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (!binding.content.text.isNullOrEmpty() || !binding.videoUrl.text.isNullOrEmpty()) {
@@ -73,20 +99,6 @@ class NewPostFragment : Fragment() {
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, callBack)
-    }
-
-    private fun postOnEdit() {
-        arguments?.content?.let {
-            binding.content.setText(it)
-        }
-        arguments?.link?.let {
-            binding.videoUrl.setText(it)
-        }
-    }
-
-    companion object {
-        var Bundle.contentText: String? by DataTransferArg
-        var Bundle.linkText: String? by DataTransferArg
     }
 
 }
