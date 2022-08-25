@@ -43,6 +43,6 @@ captures/
 *.zip
 *.tar.gz
 *.rar
-
+app/google-services.json
 ### Gradle ###
 !gradle/wrapper/gradle-wrapper.jar
