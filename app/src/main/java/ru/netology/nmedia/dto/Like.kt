@@ -2,6 +2,7 @@ package ru.netology.nmedia.dto
 
 enum class Action{
     LIKE,
+    FOOTBALL
 }
 
 data class Like(
