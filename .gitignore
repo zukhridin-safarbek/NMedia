@@ -45,5 +45,6 @@ captures/
 *.rar
 app/google-services.json
 fcm.json
+
 ### Gradle ###
 !gradle/wrapper/gradle-wrapper.jar
