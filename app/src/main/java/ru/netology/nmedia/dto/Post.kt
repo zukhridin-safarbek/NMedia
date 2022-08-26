@@ -1,6 +1,4 @@
-package ru.netology.nmedia.data
-
-import android.net.Uri
+package ru.netology.nmedia.dto
 
 data class Post(
     val id: Long,

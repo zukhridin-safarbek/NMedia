@@ -17,7 +17,7 @@ import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
-import ru.netology.nmedia.data.Post
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 
