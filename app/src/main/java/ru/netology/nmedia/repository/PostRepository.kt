@@ -1,10 +1,12 @@
 package ru.netology.nmedia.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import ru.netology.nmedia.`interface`.PostDao
 import ru.netology.nmedia.data.Post
 
 interface PostRepository {
@@ -272,6 +274,75 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
         context.openFileOutput(filename, Context.MODE_PRIVATE).bufferedWriter().use {
             it.write(gson.toJson(posts))
         }
+    }
+
+}
+
+class PostRepositorySQLiteImpl(
+    private val dao: PostDao
+): PostRepository{
+
+    private var posts = emptyList<Post>()
+    private val data = MutableLiveData(posts)
+
+    init {
+        posts = dao.getAll()
+        data.value  =posts
+    }
+
+    override fun getAll(): LiveData<List<Post>> = data
+
+    override fun likeById(id: Long){
+        dao.likedById(id)
+        posts = posts.map { post ->
+            var like = post.likes
+            println(post.id)
+            if (!post.likedByMe) {
+                like++
+            } else {
+                like--
+            }
+            if (post.id != id) {
+                post
+            } else {
+                post.copy(likedByMe = !post.likedByMe, likes = like)
+            }
+        }
+        data.value = posts
+    }
+
+
+    override fun shareById(id: Long) {
+        dao.sharedById(id)
+        posts = posts.map { post ->
+            var share = post.shares
+            share++
+            if (post.id != id) {
+                post
+            } else {
+                post.copy(shares = share)
+            }
+        }
+        data.value = posts
+    }
+
+    override fun removeById(id: Long){
+        dao.removedById(id)
+        posts = posts.filter { it.id != id }
+        data.value = posts
+    }
+
+    override fun save(post: Post) {
+        val id = post.id
+        val saved = dao.save(post)
+        posts = if (id == 0L){
+            listOf(saved) + posts
+        }else{
+            posts.map {
+                if (it.id != post.id) it else saved
+            }
+        }
+        data.value = posts
     }
 
 }

@@ -1,6 +1,8 @@
 package ru.netology.nmedia.fragment
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,16 +14,12 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.contentText
-import ru.netology.nmedia.fragment.NewPostFragment.Companion.linkText
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.data.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
-import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
-import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -42,6 +40,11 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
+        if (!viewModel.draftContent.value.isNullOrEmpty() || !viewModel.draftVideoLink.value.isNullOrEmpty()){
+
+            binding.addOrEditBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
+            binding.addOrEditBtn.drawable.setTint(Color.WHITE)
+        }
     }
 
 
@@ -70,6 +73,7 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
                     content = post.content
                     link = post.videoLink
+                    checkForDraft = "clickedEditBtn"
                 })
             }
             override fun onRemove(post: Post) {
@@ -103,7 +107,9 @@ class FeedFragment : Fragment(), ItemListener {
         }
 
         binding.addOrEditBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
+                checkForDraft = "clickedAddBtn"
+            })
         }
 
     }
@@ -114,7 +120,7 @@ class FeedFragment : Fragment(), ItemListener {
         bundle = Bundle()
     }
 
-    override fun onClick(post: Post) {
+    override fun postItemOnClick(post: Post) {
         findNavController().navigate(R.id.action_feedFragment_to_detailFragment, Bundle().apply {
             postId = post.id.toString()
         })
@@ -124,8 +130,9 @@ class FeedFragment : Fragment(), ItemListener {
         var Bundle.content: String? by DataTransferArg
         var Bundle.link: String? by DataTransferArg
         var Bundle.postId: String? by DataTransferArg
+        var Bundle.checkForDraft: String? by DataTransferArg
     }
 }
 interface ItemListener {
-    fun onClick(post: Post)
+    fun postItemOnClick(post: Post)
 }

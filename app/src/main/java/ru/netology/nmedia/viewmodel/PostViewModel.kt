@@ -2,14 +2,19 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInMemoryImpl
+import ru.netology.nmedia.`interface`.PostDao
+import ru.netology.nmedia.`object`.PostColumns
 import ru.netology.nmedia.data.Post
-import ru.netology.nmedia.repository.PostRepositoryFileImpl
-import ru.netology.nmedia.repository.PostRepositorySharedPrefsImpl
+import ru.netology.nmedia.database.AppDb
+import ru.netology.nmedia.database.NMediaDBHelper
+import ru.netology.nmedia.database.NMediaDBManager
+import ru.netology.nmedia.database.PostDaoImpl
+import ru.netology.nmedia.repository.*
 
 
 private val empty = Post(
@@ -23,7 +28,11 @@ private val empty = Post(
     videoLink = null
 )
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PostRepository = PostRepositoryFileImpl(application)
+    private val repository: PostRepository = PostRepositorySQLiteImpl(
+        AppDb.getInstance(application).postDao
+    )
+    val draftContent = MutableLiveData<String>()
+    val draftVideoLink = MutableLiveData<String>()
     val data = repository.getAll()
     private val edited = MutableLiveData(empty)
     fun edit(post: Post){
