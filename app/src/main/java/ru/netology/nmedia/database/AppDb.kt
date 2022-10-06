@@ -29,6 +29,5 @@ abstract class AppDb : RoomDatabase() {
             )
                 .allowMainThreadQueries()
                 .build()
-
     }
 }

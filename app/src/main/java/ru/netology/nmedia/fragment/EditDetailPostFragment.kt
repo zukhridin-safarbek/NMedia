@@ -28,7 +28,7 @@ class EditDetailPostFragment: Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentEditDetailPostBinding.inflate(inflater, container, false)
         return binding.root
     }

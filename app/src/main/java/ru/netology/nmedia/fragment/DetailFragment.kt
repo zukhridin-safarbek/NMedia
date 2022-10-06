@@ -53,40 +53,42 @@ class DetailFragment : Fragment(), OnInteractionListener {
             postId = it.toLong()
         }
         println(postId)
-            viewModel.data.observe(viewLifecycleOwner) { posts ->
-                posts.map { post ->
-                    if (postId == post.id) {
-                        with(binding) {
-                            postAuthor.text = post.author
-                            postPublishedDate.text = post.publishedDate
-                            postContent.text = post.content
-                            likeIcon.text = post.likes.toString()
-                            shareIcon.text = post.shares.toString()
-                            likeIcon.isChecked = post.likedByMe
-                            viewIcon.text = (12434).toString()
-                            if (!post.videoLink.isNullOrBlank()){
-                                playBtn.visibility = View.VISIBLE
-                                playBtn.setOnClickListener {
-                                    playVideo(post)
-                                }
-                            }else{
-                                playBtn.visibility = View.GONE
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            state.posts.map { post ->
+                if (postId == post.id) {
+                    with(binding) {
+                        postAuthor.text = post.author
+                        postPublishedDate.text = post.publishedDate
+                        postContent.text = post.content
+                        likeIcon.text = post.likes.toString()
+                        shareIcon.text = post.shares.toString()
+                        likeIcon.isChecked = post.likedByMe
+                        viewIcon.text = (12434).toString()
+                        if (!post.videoLink.isNullOrBlank()) {
+                            playBtn.visibility = View.VISIBLE
+                            playBtn.setOnClickListener {
+                                playVideo(post)
                             }
-                            likeIcon.setOnClickListener {
-                                onLike(post)
-                            }
-                            shareIcon.setOnClickListener {
-                                onShare(post)
-                            }
-                            postMenuBtn.setOnClickListener {
-                                menuBtn(post, it)
-                            }
+                        } else {
+                            playBtn.visibility = View.GONE
+                        }
+                        likeIcon.setOnClickListener {
+                            onLike(post)
+                        }
+                        shareIcon.setOnClickListener {
+                            onShare(post)
+                        }
+                        postMenuBtn.setOnClickListener {
+                            menuBtn(post, it)
                         }
                     }
                 }
             }
 
+        }
+
     }
+
     override fun onLike(post: Post) {
         viewModel.likeById(post.id)
     }
@@ -106,10 +108,11 @@ class DetailFragment : Fragment(), OnInteractionListener {
 
     override fun onEdit(post: Post) {
         viewModel.edit(post)
-        findNavController().navigate(R.id.action_detailFragment_to_editDetailPostFragment, Bundle().apply {
-            detailContent = post.content
-            detailLink = post.videoLink
-        })
+        findNavController().navigate(R.id.action_detailFragment_to_editDetailPostFragment,
+            Bundle().apply {
+                detailContent = post.content
+                detailLink = post.videoLink
+            })
     }
 
     override fun onRemove(post: Post) {
@@ -147,6 +150,7 @@ class DetailFragment : Fragment(), OnInteractionListener {
             }
         }.show()
     }
+
     companion object {
         var Bundle.detailContent: String? by DataTransferArg
         var Bundle.detailLink: String? by DataTransferArg
