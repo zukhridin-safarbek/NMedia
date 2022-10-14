@@ -81,7 +81,7 @@ class PostsAdapter(
                 }
             }
             itemView.setOnClickListener {
-                listener.onClick(post)
+                listener.postItemOnClick(post)
             }
         }
     }

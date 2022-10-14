@@ -132,6 +132,9 @@ class FeedFragment : Fragment(), ItemListener {
                 binding.swipeRefreshLayout.isRefreshing = state.loading
                 binding.progress.isVisible = false
             }
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
+                checkForDraft = "clickedAddBtn"
+            })
         }
 
     }
@@ -142,7 +145,7 @@ class FeedFragment : Fragment(), ItemListener {
         bundle = Bundle()
     }
 
-    override fun onClick(post: Post) {
+    override fun postItemOnClick(post: Post) {
         findNavController().navigate(R.id.action_feedFragment_to_detailFragment, Bundle().apply {
             postId = post.id.toString()
         })
@@ -157,5 +160,5 @@ class FeedFragment : Fragment(), ItemListener {
 }
 
 interface ItemListener {
-    fun onClick(post: Post)
+    fun postItemOnClick(post: Post)
 }

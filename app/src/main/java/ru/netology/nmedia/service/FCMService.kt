@@ -20,10 +20,21 @@ import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
     private val action = "action"
-    private val content = "post"
+    private val content = "content"
     private val gson = Gson()
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        remoteMessage.data[action]?.let {
+            try {
+                when(Action.valueOf(it.uppercase())){
+                    Action.LIKE -> handleLike(gson.fromJson(remoteMessage.data[content], Like::class.java))
+                }
+            }catch (e: Exception){
+                Log.e(action, "nu enum constants how $it")
+                null
+            }
+
+        }
         Log.d(action, "From: ${remoteMessage.from}")
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(action, "Message data payload: ${remoteMessage.data}")
