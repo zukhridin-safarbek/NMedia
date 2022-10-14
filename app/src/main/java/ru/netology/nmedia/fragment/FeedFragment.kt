@@ -5,9 +5,14 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -25,14 +30,16 @@ class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
+    private var postsList = emptyList<Post>()
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+        savedInstanceState: Bundle?,
+    ): View {
         addBinding()
         return binding.root
     }
@@ -40,8 +47,7 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
-        if (!viewModel.draftContent.value.isNullOrEmpty() || !viewModel.draftVideoLink.value.isNullOrEmpty()){
-
+        if (!viewModel.draftContent.value.isNullOrEmpty() || !viewModel.draftVideoLink.value.isNullOrEmpty()) {
             binding.addOrEditBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
             binding.addOrEditBtn.drawable.setTint(Color.WHITE)
         }
@@ -56,26 +62,31 @@ class FeedFragment : Fragment(), ItemListener {
 
 
             override fun onShare(post: Post) {
-                val intent = Intent().apply {
-                    action = Intent.ACTION_SEND
-                    putExtra(Intent.EXTRA_TEXT, post.content)
-                    type = "text/plain"
-                }
-                val shareIntent = Intent.createChooser(intent, getString(R.string.share_post))
-                startActivity(shareIntent)
-                if (intent.action == Intent.ACTION_SEND) {
-                    viewModel.shareByID(post.id)
-                }
+                Toast.makeText(requireContext(),
+                    "Backend don't give link for share by id",
+                    Toast.LENGTH_SHORT).show()
+//                val intent = Intent().apply {
+//                    action = Intent.ACTION_SEND
+//                    putExtra(Intent.EXTRA_TEXT, post.content)
+//                    type = "text/plain"
+//                }
+//                val shareIntent = Intent.createChooser(intent, getString(R.string.share_post))
+//                startActivity(shareIntent)
+//                if (intent.action == Intent.ACTION_SEND) {
+//                    viewModel.shareByID(post.id)
+//                }
             }
 
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
-                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
-                    content = post.content
-                    link = post.videoLink
-                    checkForDraft = "clickedEditBtn"
-                })
+                findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        content = post.content
+                        link = post.videoLink
+                        checkForDraft = "clickedEditBtn"
+                    })
             }
+
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
@@ -96,17 +107,31 @@ class FeedFragment : Fragment(), ItemListener {
 
 
         binding.list.adapter = adapter
-
-        viewModel.data.observe(viewLifecycleOwner) { post ->
-            val newPost = adapter.itemCount < post.size
-            adapter.submitList(post) {
-                if (newPost) {
-                    binding.list.smoothScrollToPosition(0)
-                }
-             }
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            postsList = state.posts
+            adapter.submitList(postsList)
+            binding.progress.isVisible = state.loading
+            println(state.loading)
+            binding.emptyText.isVisible = state.empty
         }
 
+
+
+
         binding.addOrEditBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
+                Bundle().apply {
+                    checkForDraft = "clickedAddBtn"
+                })
+        }
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.refresh()
+            binding.progress.isVisible = false
+            viewModel.data.observe(viewLifecycleOwner) { state ->
+                binding.swipeRefreshLayout.isRefreshing = state.loading
+                binding.progress.isVisible = false
+            }
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
                 checkForDraft = "clickedAddBtn"
             })
@@ -133,6 +158,7 @@ class FeedFragment : Fragment(), ItemListener {
         var Bundle.checkForDraft: String? by DataTransferArg
     }
 }
+
 interface ItemListener {
     fun postItemOnClick(post: Post)
 }

@@ -285,7 +285,7 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
 //    private val data = MutableLiveData(posts)
 //
 //
-//    override fun getAll(): LiveData<List<Post>> = data
+    //    override fun getAll(): LiveData<List<Post>> = data
 //
 //    override fun likeById(id: Long){
 //        dao.likedById(id)
