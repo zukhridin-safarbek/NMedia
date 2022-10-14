@@ -18,6 +18,11 @@ jobs:
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
         run: echo $FIREBASE_SECRET > ./app/google-services.json
+        
+      - name: Decode fcm.json
+        env:
+          FCM_SECRET: ${{ secrets.FCM_SECRET }}
+        run: echo $FIREBASE_SECRET > ./fcm.json
 
       - name: Build
         run: |
