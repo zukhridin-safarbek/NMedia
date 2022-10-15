@@ -10,6 +10,7 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.database.AppDb
 import ru.netology.nmedia.repository.*
 import java.io.IOException
+import java.lang.Exception
 import kotlin.concurrent.thread
 
 
@@ -51,54 +52,75 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         getData()
     }
 
+
     private fun getData() {
-        thread {
-            _data.postValue(FeedModel(loading = true))
-            try {
-                val posts = serverRepository.getAllFromServer()
+        _data.postValue(FeedModel(loading = true))
+        serverRepository.getAllFromServerAsync(object : PostRepoServer.Callback<List<Post>> {
+            override fun onSuccess(posts: List<Post>) {
                 _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
-            } catch (e: IOException) {
-                e.printStackTrace()
-                FeedModel(error = true)
-            }.also { _data::postValue }
-        }
+            }
+
+            override fun error(e: Exception) {
+                _data.postValue(FeedModel(error = true))
+            }
+        })
     }
 
 
     fun changeContentAndSave(content: String?, url: String?) {
-        thread {
-            val text = content?.trim()
-            val urlText = url?.trim()
-            if (edited.value?.content == text && edited.value?.videoLink == urlText) {
-                return@thread
-            }
-            edited.value?.let {
-                serverRepository.save(it.copy(content = text.toString(), videoLink = urlText))
-            }
-            edited.postValue(empty)
-            getData()
-        }
+             val text = content?.trim()
+                val urlText = url?.trim()
+                if (edited.value?.content == text && edited.value?.videoLink == urlText) {
+                    return
+                }
+                edited.value?.let {
+                     serverRepository.saveAsync(it.copy(content = text.toString(), videoLink = urlText),
+                        object : PostRepoServer.Callback<Post> {
+                            override fun onSuccess(posts: Post) {
+                                super.onSuccess(posts)
+                            }
+                            override fun error(e: Exception) {
+                                super.error(e)
+                            }
+                        })
+                }
+                edited.postValue(empty)
+                getData()
     }
 
-    fun likeById(id: Long) = thread {
-        serverRepository.likeById(id)
-        getData()
+    fun likeById(id: Long) =
+        serverRepository.likeByIdAsync(id, object : PostRepoServer.Callback<Post> {
+            override fun onSuccess(posts: Post) {
+                super.onSuccess(posts)
+                getData()
+            }
 
-    }
+            override fun error(e: Exception) {
+                super.error(e)
+            }
+        })
+
+
 
     fun shareByID(id: Long) {
         TODO()
     }
 
-    fun removeById(id: Long) = thread {
-        serverRepository.removeById(id)
-        getData()
-    }
+    fun removeById(id: Long) =
+        serverRepository.removeByIdAsync(id, object : PostRepoServer.Callback<Unit> {
+            override fun onSuccess(posts: Unit) {
+                super.onSuccess(posts)
+                getData()
+            }
+
+            override fun error(e: Exception) {
+                super.error(e)
+            }
+        })
+
 
     fun refresh() {
-        thread {
             getData()
-        }
     }
 
 }
