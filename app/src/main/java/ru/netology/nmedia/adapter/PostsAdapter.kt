@@ -3,13 +3,17 @@ package ru.netology.nmedia.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.fragment.ItemListener
 
 interface OnInteractionListener {
@@ -22,7 +26,7 @@ interface OnInteractionListener {
 
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
-    private val listener: ItemListener
+    private val listener: ItemListener,
 ) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
     class PostViewHolder(
         private val binding: CardPostLayoutBinding,
@@ -44,21 +48,28 @@ class PostsAdapter(
         }
 
         fun bind(post: Post, listener: ItemListener) {
+            val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
-                postAuthor.text = post.author
-                postPublishedDate.text = post.publishedDate
-                postContent.text = post.content
+                postPublishedDate.text = date.shuffled()[0]
+                postContent.text = post.attachment?.component2() ?: post.content
                 likeIcon.text = post.likes.toString()
                 shareIcon.text = post.shares.toString()
                 likeIcon.isChecked = post.likedByMe
                 viewIcon.text = (12434).toString()
-                if (!post.videoLink.isNullOrBlank()){
+                getAvatarFromServer("${post.authorAvatar}", postAvatar)
+                if (!post.videoLink.isNullOrBlank()) {
                     playBtn.visibility = View.VISIBLE
                     playBtn.setOnClickListener {
                         onInteractionListener.playVideo(post)
                     }
-                }else{
+                } else {
                     playBtn.visibility = View.GONE
+                }
+                if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+                    getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
+                        postContentImage)
+                } else {
+                    groupContentImageAndSeparator.visibility = View.GONE
                 }
                 itemPost = post
                 postMenuBtn.setOnClickListener {
@@ -110,4 +121,34 @@ class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
         return oldItem == newItem
     }
 
+}
+
+fun getAvatarFromServer(name: String, view: ImageView) {
+    val url = "http://10.0.2.2:9999/avatars/$name"
+    if ("http" in name) {
+        Glide.with(view)
+            .load(name)
+            .timeout(10000)
+            .fitCenter()
+            .circleCrop()
+            .error(R.drawable.ic_baseline_close_24)
+            .into(view)
+    } else {
+        Glide.with(view)
+            .load(url)
+            .timeout(10000)
+            .fitCenter()
+            .circleCrop()
+            .error(R.drawable.ic_baseline_close_24)
+            .into(view)
+    }
+
+}
+
+fun getContentImageFromServer(url: String, view: ImageView) {
+    Glide.with(view)
+        .load(url)
+        .timeout(10000)
+        .error(R.drawable.ic_baseline_close_24)
+        .into(view)
 }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container"
@@ -110,20 +110,52 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/playBtn"
-            tools:text="@tools:sample/lorem/random" />
+            tools:text="Заказчик хочет, чтобы аватарки были круглые. Поищите среди методов трансформации тот, который подойдёт для этой задачи. Опубликуйте изменения в виде Pull Request'а в вашем проекте на GitHub." />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/postContentImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="12dp"
+            android:maxHeight="250dp"
+            android:minHeight="250dp"
+            android:scaleType="centerCrop"
+            android:visibility="visible"
+            app:layout_constraintTop_toBottomOf="@id/postContent"
+            tools:src="@drawable/ic_netology" />
 
+        <androidx.cardview.widget.CardView
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="0.1dp"
+            android:layout_marginVertical="12dp"
+            android:backgroundTint="?android:attr/colorControlNormal"
+            app:layout_constraintTop_toBottomOf="@id/barrierContents" />
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/groupContentImageAndSeparator"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="postContentImage, separator" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrierContents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="postContent, postContentImage" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/like_icon"
             style="@style/Widget.AppTheme.LikeCheckBox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="12dp"
             android:checkable="true"
             android:contentDescription="like"
             android:textColor="?attr/colorControlNormal"
             app:icon="@drawable/ic_like_24dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/postContent"
+            app:layout_constraintTop_toBottomOf="@id/barrierContents"
             tools:text="12" />
 
         <com.google.android.material.button.MaterialButton
