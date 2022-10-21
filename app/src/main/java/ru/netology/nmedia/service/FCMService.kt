@@ -10,6 +10,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
 import ru.netology.nmedia.channelId
+import ru.netology.nmedia.dto.Action
 import ru.netology.nmedia.dto.Like
 import ru.netology.nmedia.dto.Post
 import java.io.InputStream
@@ -30,7 +31,7 @@ class FCMService : FirebaseMessagingService() {
                     Action.LIKE -> handleLike(gson.fromJson(remoteMessage.data[content], Like::class.java))
                 }
             }catch (e: Exception){
-                Log.e(action, "nu enum constants how $it")
+                Log.e(action, "no enum constants how $it")
                 null
             }
 

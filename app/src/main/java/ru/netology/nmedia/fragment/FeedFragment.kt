@@ -115,9 +115,6 @@ class FeedFragment : Fragment(), ItemListener {
             binding.emptyText.isVisible = state.empty
         }
 
-
-
-
         binding.addOrEditBtn.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
                 Bundle().apply {
@@ -132,9 +129,6 @@ class FeedFragment : Fragment(), ItemListener {
                 binding.swipeRefreshLayout.isRefreshing = state.loading
                 binding.progress.isVisible = false
             }
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment, Bundle().apply {
-                checkForDraft = "clickedAddBtn"
-            })
         }
 
     }
