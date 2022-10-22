@@ -6,15 +6,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
+import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
@@ -52,7 +55,6 @@ class DetailFragment : Fragment(), OnInteractionListener {
         arguments?.detailIdPostEdit?.let {
             postId = it.toLong()
         }
-        println(postId)
         viewModel.data.observe(viewLifecycleOwner) { state ->
             state.posts.map { post ->
                 if (postId == post.id) {
@@ -64,6 +66,14 @@ class DetailFragment : Fragment(), OnInteractionListener {
                         shareIcon.text = post.shares.toString()
                         likeIcon.isChecked = post.likedByMe
                         viewIcon.text = (12434).toString()
+                        ru.netology.nmedia.adapter.getAvatarFromServer("${post.authorAvatar}",
+                            postAvatar)
+                        if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+                            ru.netology.nmedia.adapter.getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
+                                postContentImage)
+                        } else {
+                            groupContentImageAndSeparator.visibility = View.GONE
+                        }
                         if (!post.videoLink.isNullOrBlank()) {
                             playBtn.visibility = View.VISIBLE
                             playBtn.setOnClickListener {
@@ -72,6 +82,7 @@ class DetailFragment : Fragment(), OnInteractionListener {
                         } else {
                             playBtn.visibility = View.GONE
                         }
+
                         likeIcon.setOnClickListener {
                             onLike(post)
                         }
@@ -155,4 +166,35 @@ class DetailFragment : Fragment(), OnInteractionListener {
         var Bundle.detailContent: String? by DataTransferArg
         var Bundle.detailLink: String? by DataTransferArg
     }
+
+    fun getAvatarFromServer(name: String, view: ImageView) {
+        val url = "http://10.0.2.2:9999/avatars/$name"
+        if ("http" in name) {
+            Glide.with(view)
+                .load(name)
+                .timeout(10000)
+                .fitCenter()
+                .circleCrop()
+                .error(R.drawable.ic_baseline_close_24)
+                .into(view)
+        } else {
+            Glide.with(view)
+                .load(url)
+                .timeout(10000)
+                .fitCenter()
+                .circleCrop()
+                .error(R.drawable.ic_baseline_close_24)
+                .into(view)
+        }
+
+    }
+
+    fun getContentImageFromServer(url: String, view: ImageView) {
+        Glide.with(view)
+            .load(url)
+            .timeout(10000)
+            .error(R.drawable.ic_baseline_close_24)
+            .into(view)
+    }
+
 }

@@ -75,7 +75,6 @@ class PostRepositoryInMemoryImpl : PostRepository {
         var like: Long
         posts = posts.map { post ->
             like = post.likes
-            println(post.id)
             if (!post.likedByMe) {
                 like++
             } else {
@@ -291,7 +290,6 @@ class PostRepositoryFileImpl(private val context: Context) : PostRepository {
 //        dao.likedById(id)
 //        posts = posts.map { post ->
 //            var like = post.likes
-//            println(post.id)
 //            if (!post.likedByMe) {
 //                like++
 //            } else {

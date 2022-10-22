@@ -11,10 +11,12 @@
         android:id="@+id/postAvatar"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:minWidth="64dp"
+        android:minHeight="64dp"
         android:src="@drawable/ic_netology"
         app:layout_constraintBottom_toBottomOf="@+id/postPublishedDate"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/postAuthor" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/postAuthor"
@@ -105,8 +107,40 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/playBtn"
-        tools:text="@tools:sample/lorem" />
+        tools:text="Заказчик хочет, чтобы аватарки были круглые. Поищите среди методов трансформации тот, который подойдёт для этой задачи. Опубликуйте изменения в виде Pull Request'а в вашем проекте на GitHub." />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/postContentImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:maxHeight="250dp"
+        android:minHeight="250dp"
+        android:layout_marginVertical="12dp"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        app:layout_constraintTop_toBottomOf="@id/postContent"
+        tools:src="@drawable/ic_netology" />
+    <androidx.cardview.widget.CardView
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:layout_marginVertical="12dp"
+        android:backgroundTint="?android:attr/colorControlNormal"
+        app:layout_constraintTop_toBottomOf="@id/postContentImage"
+        />
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/groupContentImageAndSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="postContentImage, separator"
+        />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrierContents"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="postContent, postContentImage" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/like_icon"
@@ -117,8 +151,9 @@
         android:contentDescription="like"
         android:textColor="?attr/colorControlNormal"
         app:icon="@drawable/ic_like_24dp"
+        android:layout_marginVertical="12dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/postContent"
+        app:layout_constraintTop_toBottomOf="@id/barrierContents"
         tools:text="12" />
 
     <com.google.android.material.button.MaterialButton

@@ -74,13 +74,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                     return
                 }
                 edited.value?.let {
-                     serverRepository.saveAsync(it.copy(content = text.toString(), videoLink = urlText),
+                     serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText),
                         object : PostRepoServer.Callback<Post> {
                             override fun onSuccess(posts: Post) {
-                                super.onSuccess(posts)
                             }
                             override fun error(e: Exception) {
-                                super.error(e)
                             }
                         })
                 }

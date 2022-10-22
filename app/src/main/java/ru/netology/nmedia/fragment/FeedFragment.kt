@@ -111,7 +111,6 @@ class FeedFragment : Fragment(), ItemListener {
             postsList = state.posts
             adapter.submitList(postsList)
             binding.progress.isVisible = state.loading
-            println(state.loading)
             binding.emptyText.isVisible = state.empty
         }
 
