@@ -79,10 +79,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                         listPosts = listPosts.map { post ->
                             if (post.id == value.id || value.id == 0L) value else post
                         }
-                        println(listPosts)
                         _data.value = FeedModel(posts = listPosts)
                     }
-
                     override fun error(e: Exception) {
                         responseStatusError.postValue(e.message)
                     }

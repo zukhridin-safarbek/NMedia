@@ -34,11 +34,7 @@ interface PostApiService {
     fun getAllPosts(): Call<List<Post>>
 
     @POST("posts")
-    fun insertPost(@Body post: Post): Call<Post>
-
-    @POST("posts")
-    fun updateContentById(@Body post: Post): Call<Post>
-
+    fun save(@Body post: Post): Call<Post>
 
     @POST("posts/{id}/likes")
     fun likeById(@Path("id") id: Long): Call<Post>

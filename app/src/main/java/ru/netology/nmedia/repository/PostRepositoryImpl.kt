@@ -1,19 +1,11 @@
 package ru.netology.nmedia.repository
 
-import android.widget.Toast
-import androidx.lifecycle.LiveData
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import okhttp3.*
-import okhttp3.MediaType.Companion.toMediaType
 import retrofit2.Call
 import retrofit2.Response
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.service.PostsApi
-import java.io.IOException
 import java.lang.Exception
 import java.lang.RuntimeException
-import java.util.concurrent.TimeUnit
 
 class PostRepositoryImpl : PostRepository {
     private var posts = emptyList<Post>()
@@ -88,8 +80,7 @@ class PostRepositoryImpl : PostRepository {
 
 
     override fun saveAsync(post: Post, callback: Callback<Post>) {
-        if (post.id == 0L) {
-            PostsApi.retrofitService.insertPost(post).enqueue(object : Callback<Post>,
+            PostsApi.retrofitService.save(post).enqueue(object : Callback<Post>,
                 retrofit2.Callback<Post> {
                 override fun onResponse(call: Call<Post>, response: Response<Post>) {
                     when (response.code().toString()[0].digitToInt()) {
@@ -116,49 +107,12 @@ class PostRepositoryImpl : PostRepository {
                     }
 
                 }
-
                 override fun onFailure(call: Call<Post>, t: Throwable) {
                     callback.error(RuntimeException(t))
                 }
 
             })
-        } else {
-            PostsApi.retrofitService.updateContentById(post).enqueue(object : Callback<Post>,
-                retrofit2.Callback<Post> {
-                override fun onResponse(call: Call<Post>, response: Response<Post>) {
-                    when (response.code().toString()[0].digitToInt()) {
-                        4 -> {
-                            callback.error(RuntimeException("Ошибка 404, неправильный запрос или пост не найдено!"))
-                        }
-                        5 -> {
-                            callback.error(RuntimeException("Ошибка 505, ошибка сервера, попробуйте ешё раз!"))
-                        }
-                        2 -> {
-                            posts = posts.map {
-                                if (it.id == post.id && post.content != it.content) {
-                                    val newPost = it.copy(content = post.content)
-                                    try {
-                                        callback.onSuccess(newPost)
-                                    } catch (e: Exception) {
-                                        callback.error(e)
-                                    }
-                                    newPost
-                                } else {
-                                    post
-                                }
-                            }
 
-
-                        }
-                    }
-                }
-
-                override fun onFailure(call: Call<Post>, t: Throwable) {
-                    callback.error(RuntimeException(t))
-                }
-
-            })
-        }
     }
 
     override fun deleteAsync(id: Long, callback: Callback<Unit>) {
