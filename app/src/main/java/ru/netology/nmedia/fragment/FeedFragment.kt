@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -31,6 +32,7 @@ class FeedFragment : Fragment(), ItemListener {
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
     private var postsList = emptyList<Post>()
+    private lateinit var adapter: PostsAdapter
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
@@ -47,6 +49,10 @@ class FeedFragment : Fragment(), ItemListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         postControl()
+        checkAndSetDraftSettings()
+    }
+
+    private fun checkAndSetDraftSettings() {
         if (!viewModel.draftContent.value.isNullOrEmpty() || !viewModel.draftVideoLink.value.isNullOrEmpty()) {
             binding.addOrEditBtn.backgroundTintList = ColorStateList.valueOf(Color.RED)
             binding.addOrEditBtn.drawable.setTint(Color.WHITE)
@@ -55,9 +61,18 @@ class FeedFragment : Fragment(), ItemListener {
 
 
     private fun postControl() {
-        val adapter = PostsAdapter(object : OnInteractionListener {
+        controlAdapter()
+        postLoadOnCreate()
+        openAddOrEditScreen()
+        controlSwipeRefreshLayout()
+
+    }
+
+    private fun controlAdapter() {
+        adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
+                showServerError()
             }
 
 
@@ -75,6 +90,7 @@ class FeedFragment : Fragment(), ItemListener {
 //                if (intent.action == Intent.ACTION_SEND) {
 //                    viewModel.shareByID(post.id)
 //                }
+                showServerError()
             }
 
             override fun onEdit(post: Post) {
@@ -85,10 +101,13 @@ class FeedFragment : Fragment(), ItemListener {
                         link = post.videoLink
                         checkForDraft = "clickedEditBtn"
                     })
+                showServerError()
             }
 
             override fun onRemove(post: Post) {
+                showServerError()
                 viewModel.removeById(post.id)
+                binding.list.smoothScrollToPosition(postsList.size)
             }
 
             override fun playVideo(post: Post) {
@@ -104,24 +123,11 @@ class FeedFragment : Fragment(), ItemListener {
             }
 
         }, this)
+    }
 
-
-        binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            postsList = state.posts
-            adapter.submitList(postsList)
-            binding.progress.isVisible = state.loading
-            binding.emptyText.isVisible = state.empty
-        }
-
-        binding.addOrEditBtn.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
-                Bundle().apply {
-                    checkForDraft = "clickedAddBtn"
-                })
-        }
-
+    private fun controlSwipeRefreshLayout() {
         binding.swipeRefreshLayout.setOnRefreshListener {
+            showServerError()
             viewModel.refresh()
             binding.progress.isVisible = false
             viewModel.data.observe(viewLifecycleOwner) { state ->
@@ -129,7 +135,62 @@ class FeedFragment : Fragment(), ItemListener {
                 binding.progress.isVisible = false
             }
         }
+    }
 
+    private fun openAddOrEditScreen() {
+        binding.addOrEditBtn.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment,
+                Bundle().apply {
+                    checkForDraft = "clickedAddBtn"
+                })
+        }
+    }
+
+    private fun showServerError() {
+        viewModel.responseStatusError.observe(viewLifecycleOwner) { responseStatusError ->
+            if (!responseStatusError.isNullOrEmpty()) {
+                viewModel.serverNoConnection.observe(viewLifecycleOwner) { serverNoConnection ->
+                    if (serverNoConnection) {
+                        binding.reloadPostsFromServer.visibility = View.VISIBLE
+                        binding.reloadPostsFromServer.setOnClickListener {
+                            viewModel.refresh()
+                            postLoadOnCreate()
+                            binding.reloadPostsFromServer.visibility = View.GONE
+                        }
+                        Toast.makeText(requireContext(), responseStatusError, Toast.LENGTH_SHORT).show()
+                    }
+
+                }
+
+                if (viewModel.serverNoConnection.value == false) {
+                    Toast.makeText(requireContext(), responseStatusError, Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                binding.reloadPostsFromServer.visibility = View.GONE
+                return@observe
+            }
+        }
+    }
+
+    private fun postLoadOnCreate() {
+        binding.list.adapter = adapter
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            postsList = state.posts
+            adapter.submitList(postsList)
+            binding.progress.isVisible = state.loading
+            binding.emptyText.isVisible = state.empty
+            if (postsList.isEmpty() && !state.loading) {
+                binding.reloadPostsFromServer.visibility = View.VISIBLE
+                showServerError()
+            } else {
+                binding.reloadPostsFromServer.visibility = View.GONE
+            }
+            if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false){
+                binding.addOrEditBtn.visibility = View.VISIBLE
+            }
+
+
+        }
     }
 
     private fun addBinding() {
