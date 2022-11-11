@@ -2,12 +2,17 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
+
+import kotlinx.coroutines.launch
+import ru.netology.nmedia.FeedModel
+import ru.netology.nmedia.FeedModelState
+import ru.netology.nmedia.database.AppDb
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.repository.Callback
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.repository.PostRepositoryImpl
+import ru.netology.nmedia.service.PostsApi
+import java.lang.Exception
 
 
 private val empty = Post(
@@ -21,23 +26,19 @@ private val empty = Post(
     videoLink = null
 )
 
-data class FeedModel(
-    val posts: List<Post> = emptyList(),
-    val loading: Boolean = false,
-    val error: Boolean = false,
-    val empty: Boolean = false,
-)
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val serverRepository = PostRepositoryImpl()
+    private val serverRepository = PostRepositoryImpl(AppDb.getInstance(application).postDao())
     private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
-    val responseStatusError = MutableLiveData<String>()
+    val postsNoInServe = serverRepository.postsNoInServer
     val serverNoConnection = MutableLiveData<Boolean>()
-    private val _data = MutableLiveData<FeedModel>()
-    val data: LiveData<FeedModel>
-        get() = _data
+    val data: LiveData<FeedModel> = serverRepository.posts.map { FeedModel(it.map(PostEntity::toDto), it.isEmpty()) }
+    val dataEntity: LiveData<List<PostEntity>> = serverRepository.posts
+    private val _state = MutableLiveData<FeedModelState>()
+    val state: LiveData<FeedModelState>
+        get() = _state
     private val edited = MutableLiveData(empty)
     fun edit(post: Post) {
         edited.value = post
@@ -47,63 +48,57 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         getData()
     }
 
-
-    private fun getData() {
-        _data.value = FeedModel(loading = true)
-        serverRepository.getAllFromServerAsync(object : Callback<List<Post>> {
-            override fun onSuccess(value: List<Post>) {
-                _data.value = FeedModel(posts = value, empty = value.isEmpty())
-                listPosts = value
-
-            }
-
-            override fun error(e: Exception) {
-                _data.value = FeedModel(error = true)
-                responseStatusError.postValue(e.message)
-                serverNoConnection.postValue(true)
-            }
-        })
+     fun reSend(postEntity: PostEntity) = viewModelScope.launch{
+         println("top resend viewModel")
+         serverRepository.reSendPostToServer(postEntity)
+         println("bottom resend viewModel")
     }
 
 
-    fun changeContentAndSave(content: String?, url: String?) {
+    private fun getData() = viewModelScope.launch {
+        _state.value = FeedModelState.Loading
+        try {
+            serverRepository.getAllFromServerAsync()
+            listPosts = serverRepository.getAllFromServerAsync()
+            _state.value = FeedModelState.Idle
+        } catch (e: Exception) {
+            _state.value = FeedModelState.Error
+        }
+    }
+
+    fun refresh() = viewModelScope.launch {
+        _state.value = FeedModelState.Refreshing
+        try {
+            serverRepository.getAllFromServerAsync()
+            _state.value = FeedModelState.Idle
+        } catch (e: Exception) {
+            _state.value = FeedModelState.Error
+        }
+    }
+
+    fun changeContentAndSave(content: String?, url: String?) = viewModelScope.launch {
         val text = content?.trim()
         val urlText = url?.trim()
-        if (edited.value?.content == text && edited.value?.videoLink == urlText) {
-            return
-        }
         edited.value?.let {
-            serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText),
-                object : Callback<Post> {
-                    override fun onSuccess(value: Post) {
-                        listPosts = listPosts.map { post ->
-                            if (post.id == value.id || value.id == 0L) value else post
-                        }
-                        _data.value = FeedModel(posts = listPosts)
-                    }
-                    override fun error(e: Exception) {
-                        responseStatusError.postValue(e.message)
-                    }
-                })
+            serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText))
         }
         edited.postValue(empty)
     }
 
-    fun likeById(id: Long) {
-        serverRepository.likeByIdAsync(id, object : Callback<Post> {
-            override fun onSuccess(value: Post) {
-                listPosts = listPosts.map { post ->
-                    if (post.id == id) value else post
-                }
-                _data.value = FeedModel(posts = listPosts)
-            }
+    fun likeById(id: Long) = viewModelScope.launch {
+        try {
+            serverRepository.likeByIdAsync(id)
+        } catch (e: Exception) {
+            _state.value = FeedModelState.Error
+        }
+    }
 
-            override fun error(e: Exception) {
-                _data.value = FeedModel(error = true)
-                responseStatusError.postValue(e.message)
-            }
-        })
-
+    fun dislikeById(id: Long) = viewModelScope.launch {
+        try {
+            serverRepository.dislikeByIdAsync(id)
+        } catch (e: Exception) {
+            _state.value = FeedModelState.Error
+        }
     }
 
 
@@ -111,24 +106,15 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         TODO()
     }
 
-    fun removeById(id: Long) {
-        serverRepository.deleteAsync(id, object : Callback<Unit> {
-            override fun onSuccess(value: Unit) {
-                println("onSuccess")
-                getData()
-            }
-
-            override fun error(e: Exception) {
-                responseStatusError.postValue(e.message)
-            }
-        })
+    fun removeById(id: Long) = viewModelScope.launch {
+        try {
+            serverRepository.deleteAsync(id)
+        }catch (e: Exception){
+            _state.value = FeedModelState.Error
+        }
 
     }
 
-
-    fun refresh() {
-        getData()
-    }
 
 }
 

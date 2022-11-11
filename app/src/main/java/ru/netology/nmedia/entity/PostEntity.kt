@@ -1,11 +1,14 @@
 package ru.netology.nmedia.entity
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
+import org.jetbrains.annotations.NotNull
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.dto.PostAttachment
 
 @Entity
-data class PostEntity(
+data class PostEntity (
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val author: String,
@@ -15,7 +18,8 @@ data class PostEntity(
     val likes: Long = 0,
     val authorAvatar: String? = null,
     val shares: Long = 0,
-    val videoLink: String? = null
+    val videoLink: String? = null,
+    val isInServer: Boolean? = false,
 ){
     fun toDto() = Post(id, author, content, publishedDate, likedByMe, likes, authorAvatar, shares, videoLink)
 

@@ -12,6 +12,6 @@
     <string name="video_link">Video link</string>
     <string name="chanel_remote_name" translatable="false">remote</string>
     <string name="chanel_remote_description" translatable="false">remote description</string>
-    <string name="notification_user_liked" translatable="false">%1$s поставил лайк посту %2$s</string>
-    <string name="retry">Ещё раз попробовать</string>
+    <string name="notification_user_liked">%1$s liked post %2$s</string>
+    <string name="retry">retry</string>
 </resources>

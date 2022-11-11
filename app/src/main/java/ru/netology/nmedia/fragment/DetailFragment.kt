@@ -23,12 +23,12 @@ import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 interface OnInteractionListener {
-    fun onLike(post: Post)
-    fun onShare(post: Post)
-    fun onEdit(post: Post)
-    fun onRemove(post: Post)
-    fun playVideo(post: Post)
-    fun menuBtn(post: Post, view: View)
+     fun onLike(post: Post)
+     fun onShare(post: Post)
+     fun onEdit(post: Post)
+     fun onRemove(post: Post)
+     fun playVideo(post: Post)
+     fun menuBtn(post: Post, view: View)
 }
 
 class DetailFragment : Fragment(), OnInteractionListener {

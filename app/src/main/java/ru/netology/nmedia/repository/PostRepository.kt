@@ -11,13 +11,12 @@ import ru.netology.nmedia.entity.PostEntity
 import java.lang.Exception
 
 interface PostRepository {
-    fun likeByIdAsync(id: Long, callback: Callback<Post>)
-    fun shareById(id: Long)
-    fun saveAsync(post: Post, callback: Callback<Post>)
-    fun deleteAsync(id: Long, callback: Callback<Unit>)
-    fun getAllFromServerAsync(callback: Callback<List<Post>>)
-}
-interface Callback<T>{
-    fun onSuccess(value: T){}
-    fun error(e: Exception){}
+    val posts: LiveData<List<PostEntity>>
+    suspend fun likeByIdAsync(id: Long)
+    suspend fun dislikeByIdAsync(id: Long)
+    suspend fun shareById(id: Long)
+    suspend fun saveAsync(post: Post)
+    suspend fun deleteAsync(id: Long)
+    suspend fun getAllFromServerAsync(): List<Post>
+    suspend fun reSendPostToServer(post: PostEntity)
 }

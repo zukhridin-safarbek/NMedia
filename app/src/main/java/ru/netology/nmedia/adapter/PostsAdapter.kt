@@ -14,6 +14,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.fragment.ItemListener
 
 interface OnInteractionListener {
@@ -22,24 +23,25 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onRemove(post: Post)
     fun playVideo(post: Post)
+    fun reSendPostToServerClick(post: PostEntity)
 }
 
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
     private val listener: ItemListener,
-) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
+) : ListAdapter<PostEntity, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
     class PostViewHolder(
         private val binding: CardPostLayoutBinding,
         private val onInteractionListener: OnInteractionListener,
     ) : RecyclerView.ViewHolder(binding.root) {
-        private var itemPost: Post? = null
+        private var itemPost: PostEntity? = null
         private val likeOnClickListener: View.OnClickListener = View.OnClickListener {
             itemPost?.let { post ->
-                onInteractionListener.onLike(post)
+                onInteractionListener.onLike(post.toDto())
             }
         }
         private val shareOnClickListener: View.OnClickListener = View.OnClickListener {
-            itemPost?.let { post -> onInteractionListener.onShare(post) }
+            itemPost?.let { post -> onInteractionListener.onShare(post.toDto()) }
         }
 
         init {
@@ -47,12 +49,13 @@ class PostsAdapter(
             binding.shareIcon.setOnClickListener(shareOnClickListener)
         }
 
-        fun bind(post: Post, listener: ItemListener) {
+        fun bind(post: PostEntity, listener: ItemListener) {
             val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
                 postAuthor.text = post.author
                 postPublishedDate.text = date.shuffled()[0]
-                postContent.text = post.attachment?.component2() ?: post.content
+//                postContent.text = post.attachment?.component2() ?: post.content
+                postContent.text = post.content
                 likeIcon.text = post.likes.toString()
                 shareIcon.text = post.shares.toString()
                 likeIcon.isChecked = post.likedByMe
@@ -61,16 +64,23 @@ class PostsAdapter(
                 if (!post.videoLink.isNullOrBlank()) {
                     playBtn.visibility = View.VISIBLE
                     playBtn.setOnClickListener {
-                        onInteractionListener.playVideo(post)
+                        onInteractionListener.playVideo(post.toDto())
                     }
                 } else {
                     playBtn.visibility = View.GONE
                 }
-                if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
-                    getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
-                        postContentImage)
-                } else {
-                    groupContentImageAndSeparator.visibility = View.GONE
+                groupContentImageAndSeparator.visibility = View.GONE
+//                if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+//                    getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
+//                        postContentImage)
+//                } else {
+//                    groupContentImageAndSeparator.visibility = View.GONE
+//                }
+                if (post.isInServer == false){
+                    reSend.visibility = View.VISIBLE
+                    reSend.setOnClickListener {
+                        onInteractionListener.reSendPostToServerClick(post)
+                    }
                 }
                 itemPost = post
                 postMenuBtn.setOnClickListener {
@@ -79,11 +89,11 @@ class PostsAdapter(
                         setOnMenuItemClickListener { item ->
                             when (item.itemId) {
                                 R.id.remove -> {
-                                    onInteractionListener.onRemove(post)
+                                    onInteractionListener.onRemove(post.toDto())
                                     true
                                 }
                                 R.id.edit -> {
-                                    onInteractionListener.onEdit(post)
+                                    onInteractionListener.onEdit(post.toDto())
                                     true
                                 }
                                 else -> false
@@ -93,7 +103,7 @@ class PostsAdapter(
                 }
             }
             itemView.setOnClickListener {
-                listener.postItemOnClick(post)
+                listener.postItemOnClick(post.toDto())
             }
         }
     }
@@ -113,12 +123,12 @@ class PostsAdapter(
 
 }
 
-class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
-    override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
+class PostDiffCallback : DiffUtil.ItemCallback<PostEntity>() {
+    override fun areItemsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
         return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
+    override fun areContentsTheSame(oldItem: PostEntity, newItem: PostEntity): Boolean {
         return oldItem == newItem
     }
 
