@@ -18,5 +18,5 @@ interface PostRepository {
     suspend fun saveAsync(post: Post)
     suspend fun deleteAsync(id: Long)
     suspend fun getAllFromServerAsync(): List<Post>
-    suspend fun reSendPostToServer(post: PostEntity)
+    suspend fun reSendPostToServer(post: Post)
 }

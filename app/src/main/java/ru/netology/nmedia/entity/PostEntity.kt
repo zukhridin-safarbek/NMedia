@@ -21,9 +21,9 @@ data class PostEntity (
     val videoLink: String? = null,
     val isInServer: Boolean? = false,
 ){
-    fun toDto() = Post(id, author, content, publishedDate, likedByMe, likes, authorAvatar, shares, videoLink)
+    fun toDto() = Post(id, author, content, publishedDate, likedByMe, likes, authorAvatar, shares, videoLink, isInServer)
 
     companion object{
-        fun fromDto(post: Post) = PostEntity(post.id, post.author, post.content, post.publishedDate, post.likedByMe, post.likes, post.authorAvatar, post.shares, post.videoLink)
+        fun fromDto(post: Post) = PostEntity(post.id, post.author, post.content, post.publishedDate, post.likedByMe, post.likes, post.authorAvatar, post.shares, post.videoLink, post.isInServer)
     }
 }

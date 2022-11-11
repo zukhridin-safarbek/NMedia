@@ -10,5 +10,6 @@ data class Post(
     val authorAvatar: String? = null,
     val shares: Long = 0,
     val videoLink: String? = null,
+    val isInServer: Boolean? = false,
     val attachment: PostAttachment? = null
 )

@@ -31,7 +31,7 @@ class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
-    private var postsList = emptyList<PostEntity>()
+    private var postsList = emptyList<Post>()
     private lateinit var adapter: PostsAdapter
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
@@ -107,7 +107,7 @@ class FeedFragment : Fragment(), ItemListener {
                 }
             }
 
-            override fun reSendPostToServerClick(post: PostEntity) {
+            override fun reSendPostToServerClick(post: Post) {
                 viewModel.reSend(post)
             }
 
@@ -132,8 +132,8 @@ class FeedFragment : Fragment(), ItemListener {
 
     private fun postLoadOnCreate() {
         binding.list.adapter = adapter
-        viewModel.dataEntity.observe(viewLifecycleOwner) { state ->
-            postsList = state
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            postsList = state.posts
             adapter.submitList(postsList)
             if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
                 binding.addOrEditBtn.visibility = View.VISIBLE

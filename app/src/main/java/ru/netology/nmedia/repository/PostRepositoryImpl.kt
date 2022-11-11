@@ -12,8 +12,8 @@ import java.lang.Exception
 import java.lang.RuntimeException
 
 class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
-    val postsNoInServer = mutableListOf<Post>()
     override val posts: LiveData<List<PostEntity>> = postDao.getAll().map {
+        println(it)
         it
     }
 
@@ -72,7 +72,6 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
                 throw RuntimeException(response.message())
             }
             return response.body()?.also { list ->
-                postsNoInServer.clear()
                 postDao.deleteAll()
                 val postFromDto = list.map(PostEntity::fromDto)
                 postFromDto.map { postDao.insert(it.copy(isInServer = true)) }
@@ -86,14 +85,14 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun reSendPostToServer(post: PostEntity) {
+    override suspend fun reSendPostToServer(post: Post) {
         println("before resend")
         try {
             println("save")
             posts.value?.map { postIt ->
                 if (postIt.isInServer == false && post.id == postIt.id) {
-                    PostsApi.retrofitService.save(post.copy(id = 0L).toDto())
-                    postDao.insert(post.copy(isInServer = true))
+                    PostsApi.retrofitService.save(post.copy(id = 0L))
+                    postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
                 }
             }
         } catch (e: IOException) {

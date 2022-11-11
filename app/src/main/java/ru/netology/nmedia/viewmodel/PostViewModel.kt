@@ -32,7 +32,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
-    val postsNoInServe = serverRepository.postsNoInServer
     val serverNoConnection = MutableLiveData<Boolean>()
     val data: LiveData<FeedModel> = serverRepository.posts.map { FeedModel(it.map(PostEntity::toDto), it.isEmpty()) }
     val dataEntity: LiveData<List<PostEntity>> = serverRepository.posts
@@ -48,9 +47,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         getData()
     }
 
-     fun reSend(postEntity: PostEntity) = viewModelScope.launch{
+     fun reSend(post: Post) = viewModelScope.launch{
          println("top resend viewModel")
-         serverRepository.reSendPostToServer(postEntity)
+         serverRepository.reSendPostToServer(post)
          println("bottom resend viewModel")
     }
 
