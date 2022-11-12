@@ -75,12 +75,12 @@ class PostsAdapter(
                 } else {
                     groupContentImageAndSeparator.visibility = View.GONE
                 }
-                if (post.isInServer == false){
+                if (post.isInServer == false) {
                     reSend.visibility = View.VISIBLE
                     reSend.setOnClickListener {
                         onInteractionListener.reSendPostToServerClick(post)
                     }
-                }else{
+                } else {
                     reSend.visibility = View.GONE
                 }
                 itemPost = post
@@ -136,6 +136,9 @@ class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
 }
 
 fun getAvatarFromServer(name: String, view: ImageView) {
+    val images = listOf<String>("https://webstockreview.net/images/human-clipart-old-boy-8.png",
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Icons8_flat_businesswoman.svg/1200px-Icons8_flat_businesswoman.svg.png",
+        "https://get.pxhere.com/photo/avatar-people-person-business-user-man-character-set-icon-portrait-office-profile-pictograph-social-adult-suit-technology-individual-head-face-design-concept-emblem-symbol-smile-formal-elements-facial-expression-cartoon-male-forehead-cheek-chin-human-behavior-standing-gentleman-businessperson-mouth-clip-art-communication-conversation-public-speaking-finger-illustration-facial-hair-happiness-organization-graphics-1447663.jpg")
     val url = "http://10.0.2.2:9999/avatars/$name"
     if ("http" in name) {
         Glide.with(view)
@@ -143,7 +146,7 @@ fun getAvatarFromServer(name: String, view: ImageView) {
             .timeout(10000)
             .fitCenter()
             .circleCrop()
-            .error(R.drawable.ic_baseline_close_24)
+            .error(images.shuffled()[0])
             .into(view)
     } else {
         Glide.with(view)
@@ -151,7 +154,7 @@ fun getAvatarFromServer(name: String, view: ImageView) {
             .timeout(10000)
             .fitCenter()
             .circleCrop()
-            .error(R.drawable.ic_baseline_close_24)
+            .error(images.shuffled()[0])
             .into(view)
     }
 

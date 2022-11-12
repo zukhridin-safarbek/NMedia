@@ -14,4 +14,6 @@
     <string name="chanel_remote_description" translatable="false">remote description</string>
     <string name="notification_user_liked">%1$s liked post %2$s</string>
     <string name="retry">retry</string>
+    <string name="go_up_newer">Свежие записи</string>
+    <string name="error_404">error 404</string>
 </resources>

@@ -20,6 +20,7 @@ data class PostEntity (
     val shares: Long = 0,
     val videoLink: String? = null,
     val isInServer: Boolean? = false,
+    val showed: Boolean = true
 ){
     fun toDto() = Post(id, author, content, publishedDate, likedByMe, likes, authorAvatar, shares, videoLink, isInServer)
 

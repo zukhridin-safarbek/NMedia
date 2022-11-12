@@ -65,7 +65,7 @@ class FeedFragment : Fragment(), ItemListener {
         postLoadOnCreate()
         openAddOrEditScreen()
         controlSwipeRefreshLayout()
-
+        newerPosts()
     }
 
     private fun controlAdapter() {
@@ -130,10 +130,27 @@ class FeedFragment : Fragment(), ItemListener {
         }
     }
 
+    private fun newerPosts() {
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            if (it > 0) {
+                binding.goUpNewer.visibility = View.VISIBLE
+                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$it"
+                binding.goUpNewer.setOnClickListener {
+                    viewModel.refresh()
+                    binding.list.smoothScrollToPosition(0)
+                    binding.goUpNewer.visibility = View.GONE
+                }
+            } else {
+                binding.goUpNewer.visibility = View.GONE
+            }
+        }
+    }
+
     private fun postLoadOnCreate() {
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             postsList = state.posts
+
             adapter.submitList(postsList)
             if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
                 binding.addOrEditBtn.visibility = View.VISIBLE

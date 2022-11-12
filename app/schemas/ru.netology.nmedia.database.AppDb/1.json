@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "a288d7d6d2bb71aa82ebb246420b0ab8",
+    "identityHash": "04d5447531131cb8d684e2d5bc83b3e0",
     "entities": [
       {
         "tableName": "PostEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `author` TEXT NOT NULL, `content` TEXT NOT NULL, `publishedDate` TEXT, `likedByMe` INTEGER NOT NULL, `likes` INTEGER NOT NULL, `authorAvatar` TEXT, `shares` INTEGER NOT NULL, `videoLink` TEXT, `isInServer` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `author` TEXT NOT NULL, `content` TEXT NOT NULL, `publishedDate` TEXT, `likedByMe` INTEGER NOT NULL, `likes` INTEGER NOT NULL, `authorAvatar` TEXT, `shares` INTEGER NOT NULL, `videoLink` TEXT, `isInServer` INTEGER, `showed` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -67,6 +67,12 @@
             "columnName": "isInServer",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "showed",
+            "columnName": "showed",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -82,7 +88,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a288d7d6d2bb71aa82ebb246420b0ab8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '04d5447531131cb8d684e2d5bc83b3e0')"
     ]
   }
 }

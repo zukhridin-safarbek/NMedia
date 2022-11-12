@@ -3,6 +3,10 @@ package ru.netology.nmedia.repository
 import android.accounts.NetworkErrorException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.*
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
@@ -12,10 +16,7 @@ import java.lang.Exception
 import java.lang.RuntimeException
 
 class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
-    override val posts: LiveData<List<PostEntity>> = postDao.getAll().map {
-        println(it)
-        it
-    }
+    override val posts: Flow<List<PostEntity>> = postDao.getAll().flowOn(Dispatchers.Default)
 
     override suspend fun likeByIdAsync(id: Long) {
         postDao.likedById(id)
@@ -36,18 +37,18 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     override suspend fun saveAsync(post: Post) {
         try {
             PostsApi.retrofitService.save(post).isSuccessful.also {
-                    postDao.save(PostEntity(
-                        post.id,
-                        post.author,
-                        post.content,
-                        publishedDate = post.publishedDate,
-                        likedByMe = post.likedByMe,
-                        likes = post.likes,
-                        authorAvatar = post.authorAvatar,
-                        shares = post.shares,
-                        videoLink = post.videoLink,
-                        isInServer = true,
-                    ))
+                postDao.save(PostEntity(
+                    post.id,
+                    post.author,
+                    post.content,
+                    publishedDate = post.publishedDate,
+                    likedByMe = post.likedByMe,
+                    likes = post.likes,
+                    authorAvatar = post.authorAvatar,
+                    shares = post.shares,
+                    videoLink = post.videoLink,
+                    isInServer = true,
+                ))
             }
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
@@ -89,11 +90,14 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         println("before resend")
         try {
             println("save")
-            posts.value?.map { postIt ->
-                if (postIt.isInServer == false && post.id == postIt.id) {
-                    PostsApi.retrofitService.save(post.copy(id = 0L))
-                    postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
+            posts.map { postList ->
+                postList.map { postIt ->
+                    if (postIt.isInServer == false && post.id == postIt.id) {
+                        PostsApi.retrofitService.save(post.copy(id = 0L))
+                        postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
+                    }
                 }
+
             }
         } catch (e: IOException) {
             println(e.message)
@@ -103,4 +107,27 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         println("after resend")
 
     }
+
+    override fun getNewerCount(id: Long): Flow<Int> = flow {
+        while (true) {
+            try {
+                delay(10_000L)
+                val response = PostsApi.retrofitService.getNewer(id)
+                if (!response.isSuccessful) {
+                    throw Exception(response.message())
+                }
+                val body = response.body() ?: throw Exception(response.message())
+                postDao.insert(body.map(PostEntity::fromDto).map {
+                    it.copy(showed = false)
+                })
+                emit(body.size)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: IOException) {
+                throw NetworkErrorException(e.message)
+            } catch (e: Exception) {
+                throw UnknownError(e.message)
+            }
+        }
+    }.flowOn(Dispatchers.Default)
 }
