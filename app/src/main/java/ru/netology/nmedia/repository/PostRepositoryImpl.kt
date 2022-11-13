@@ -97,8 +97,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
                         postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
                     }
                 }
-
-            }
+            }.collect()
         } catch (e: IOException) {
             println(e.message)
         } catch (e: Exception) {
@@ -124,7 +123,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             } catch (e: CancellationException) {
                 throw e
             } catch (e: IOException) {
-                throw NetworkErrorException(e.message)
+                println(e.message)
             } catch (e: Exception) {
                 throw UnknownError(e.message)
             }
