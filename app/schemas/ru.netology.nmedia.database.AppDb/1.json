@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "04d5447531131cb8d684e2d5bc83b3e0",
+    "identityHash": "7921531b819664a5c396d3f78854dcae",
     "entities": [
       {
         "tableName": "PostEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `author` TEXT NOT NULL, `content` TEXT NOT NULL, `publishedDate` TEXT, `likedByMe` INTEGER NOT NULL, `likes` INTEGER NOT NULL, `authorAvatar` TEXT, `shares` INTEGER NOT NULL, `videoLink` TEXT, `isInServer` INTEGER, `showed` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `author` TEXT NOT NULL, `content` TEXT NOT NULL, `publishedDate` TEXT, `likedByMe` INTEGER NOT NULL, `likes` INTEGER NOT NULL, `authorAvatar` TEXT, `shares` INTEGER NOT NULL, `videoLink` TEXT, `isInServer` INTEGER, `showed` INTEGER NOT NULL, `url` TEXT, `description` TEXT, `type` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -73,6 +73,24 @@
             "columnName": "showed",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "attachment.url",
+            "columnName": "url",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "attachment.description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "attachment.type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -88,7 +106,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '04d5447531131cb8d684e2d5bc83b3e0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7921531b819664a5c396d3f78854dcae')"
     ]
   }
 }

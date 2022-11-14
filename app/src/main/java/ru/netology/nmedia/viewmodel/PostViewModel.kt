@@ -2,19 +2,21 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 import kotlinx.coroutines.launch
-import ru.netology.nmedia.FeedModel
-import ru.netology.nmedia.FeedModelState
+import ru.netology.nmedia.model.FeedModel
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.database.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepositoryImpl
-import ru.netology.nmedia.service.PostsApi
+import java.io.File
 import java.lang.Exception
 
 
@@ -48,6 +50,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         serverRepository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
             .asLiveData(Dispatchers.Default)
     }
+    private val _photo = MutableLiveData<PhotoModel?>(null)
+    val photo: LiveData<PhotoModel?>
+        get() = _photo
 
     fun edit(post: Post) {
         edited.value = post
@@ -88,9 +93,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun changeContentAndSave(content: String?, url: String?) = viewModelScope.launch {
         val text = content?.trim()
         val urlText = url?.trim()
-        edited.value?.let {
-            serverRepository.saveAsync(it.copy(content = text.toString(),
-                author = urlText ?: "netologyMe"))
+        edited.value?.let { post ->
+            photo.value?.let {
+                serverRepository.saveWithAttachment(post.copy(content = text.toString()), it)
+                savePhoto(null, null)
+            }
+                ?: serverRepository.saveAsync(post.copy(content = text.toString(),
+                    author = urlText ?: "netologyMe"))
         }
         edited.postValue(empty)
     }
@@ -123,6 +132,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             _state.value = FeedModelState.Error
         }
 
+    }
+
+    fun savePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
     }
 
 
