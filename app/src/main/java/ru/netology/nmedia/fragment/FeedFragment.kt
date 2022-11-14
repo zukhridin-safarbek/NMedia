@@ -131,12 +131,12 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun newerPosts() {
-        viewModel.newerCount.observe(viewLifecycleOwner) {
-            if (it > 0) {
+        viewModel.newerCount.observe(viewLifecycleOwner) { newerCount ->
+            if (newerCount > 0) {
                 binding.goUpNewer.visibility = View.VISIBLE
-                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$it"
+                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
                 binding.goUpNewer.setOnClickListener {
-                    viewModel.refresh()
+                    viewModel.newer()
                     binding.list.smoothScrollToPosition(0)
                     binding.goUpNewer.visibility = View.GONE
                 }

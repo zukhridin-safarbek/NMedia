@@ -125,6 +125,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun newer() = viewModelScope.launch {
+        serverRepository.newer()
+    }
+
 
 }
 

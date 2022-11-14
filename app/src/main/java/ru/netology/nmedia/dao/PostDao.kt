@@ -20,6 +20,10 @@ interface PostDao {
     @Query("UPDATE PostEntity SET content = :content, videoLink = :videoLink WHERE id = :id")
     suspend fun updateContentById(id: Long, content: String, videoLink: String?)
 
+    @Query("UPDATE PostEntity SET showed = 1")
+    suspend fun changeNewerShowed()
+
+
     suspend fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else updateContentById(post.id, post.content, post.videoLink)
     @Query("""
