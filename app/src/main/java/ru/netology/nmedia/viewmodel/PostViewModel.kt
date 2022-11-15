@@ -49,6 +49,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             .asLiveData(Dispatchers.Default)
     }
 
+
     fun edit(post: Post) {
         edited.value = post
     }

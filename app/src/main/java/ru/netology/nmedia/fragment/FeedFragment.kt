@@ -139,10 +139,12 @@ class FeedFragment : Fragment(), ItemListener {
                     viewModel.newer()
                     binding.list.smoothScrollToPosition(0)
                     binding.goUpNewer.visibility = View.GONE
+                    newerCount - newerCount
                 }
             } else {
                 binding.goUpNewer.visibility = View.GONE
             }
+            println(newerCount)
         }
     }
 
@@ -150,6 +152,7 @@ class FeedFragment : Fragment(), ItemListener {
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             postsList = state.posts
+            println("posts ${state.posts.firstOrNull()?.id}")
 
             adapter.submitList(postsList)
             if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
