@@ -122,18 +122,20 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun newerPosts() {
-        viewModel.newerCount.observe(viewLifecycleOwner) {
-            if (it > 0) {
+        viewModel.newerCount.observe(viewLifecycleOwner) { newerCount ->
+            if (newerCount > 0) {
                 binding.goUpNewer.visibility = View.VISIBLE
-                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$it"
+                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
                 binding.goUpNewer.setOnClickListener {
-                    viewModel.refresh()
+                    viewModel.newer()
                     binding.list.smoothScrollToPosition(0)
                     binding.goUpNewer.visibility = View.GONE
+                    newerCount - newerCount
                 }
             } else {
                 binding.goUpNewer.visibility = View.GONE
             }
+            println(newerCount)
         }
     }
 
@@ -141,6 +143,7 @@ class FeedFragment : Fragment(), ItemListener {
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             postsList = state.posts
+            println("posts ${state.posts.firstOrNull()?.id}")
             adapter.submitList(postsList)
             if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
                 binding.addOrEditBtn.visibility = View.VISIBLE

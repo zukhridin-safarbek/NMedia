@@ -172,4 +172,8 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             }
         }
     }.flowOn(Dispatchers.Default)
+
+    suspend fun newer() {
+        postDao.changeNewerShowed()
+    }
 }

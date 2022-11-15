@@ -54,6 +54,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val photo: LiveData<PhotoModel?>
         get() = _photo
 
+
     fun edit(post: Post) {
         edited.value = post
     }
@@ -133,11 +134,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     }
-
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
+    fun newer() = viewModelScope.launch {
+        serverRepository.newer()
     }
-
-
 }
 
