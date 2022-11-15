@@ -134,10 +134,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
 
     }
+
     fun savePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
+    }
+
     fun newer() = viewModelScope.launch {
         serverRepository.newer()
     }
+
 }
 
