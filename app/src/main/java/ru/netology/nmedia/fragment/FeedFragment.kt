@@ -53,13 +53,17 @@ class FeedFragment : Fragment(), ItemListener {
             binding.unauthenticated.isVisible = !authViewModel.authenticated
             binding.signOut.isVisible = authViewModel.authenticated
 
-            binding.signIn.setOnClickListener {
-                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-            }
+            signIn()
             binding.signUp.setOnClickListener { AppAuth.getInstance().setAuth(5L, "x-token") }
             binding.signOut.setOnClickListener { AppAuth.getInstance().removeAuth() }
         }
 
+    }
+
+    private fun signIn() {
+        binding.signIn.setOnClickListener {
+            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+        }
     }
 
     private fun checkAndSetDraftSettings() {
@@ -81,7 +85,20 @@ class FeedFragment : Fragment(), ItemListener {
     private fun controlAdapter() {
         adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
+                if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+                    if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
+                } else {
+                    Snackbar.make(requireView(),
+                        "You can't like because you're not logged in!",
+                        Snackbar.LENGTH_SHORT).apply {
+                        setAction(getString(R.string.sign_in),
+                            View.OnClickListener {
+                                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+                            })
+                        show()
+                    }
+                }
+
             }
 
 

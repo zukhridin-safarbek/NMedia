@@ -23,6 +23,22 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_out"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:insetLeft="4dp"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            android:paddingHorizontal="8dp"
+            android:text="@string/sign_out"
+            android:textColor="?attr/colorControlNormal"
+            android:visibility="gone"
+            tools:visibility="visible"
+            app:layout_constraintEnd_toStartOf="@id/save" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"

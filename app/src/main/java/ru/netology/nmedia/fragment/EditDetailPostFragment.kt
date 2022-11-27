@@ -8,7 +8,10 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
+import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.databinding.FragmentEditDetailPostBinding
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
@@ -36,8 +39,20 @@ class EditDetailPostFragment: Fragment() {
         binding.ok.setOnClickListener {
             AndroidUtils.hideKeyboard(requireView())
             if (!binding.content.text.isNullOrEmpty()){
-                viewModel.changeContentAndSave(binding.content.text.toString(), binding.videoUrl.text.toString())
-                findNavController().navigateUp()
+                if (AppAuth.getInstance().authStateFlow.value?.id != null){
+                    viewModel.changeContentAndSave(binding.content.text.toString(), binding.videoUrl.text.toString())
+                    findNavController().navigateUp()
+                }else{
+                    Snackbar.make(requireView(),
+                        "You can't create post because you're not logged in!",
+                        Snackbar.LENGTH_SHORT).apply {
+                        setAction(getString(R.string.sign_in),
+                            View.OnClickListener {
+                                findNavController().navigate(R.id.action_editDetailPostFragment_to_signInFragment)
+                            })
+                        show()
+                    }
+                }
             }else{
                 Toast.makeText(requireContext(), "Empty!", Toast.LENGTH_SHORT).show()
             }

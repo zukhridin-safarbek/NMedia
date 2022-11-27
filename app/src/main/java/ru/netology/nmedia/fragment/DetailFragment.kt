@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
@@ -101,7 +102,19 @@ class DetailFragment : Fragment(), OnInteractionListener {
     }
 
     override fun onLike(post: Post) {
-        viewModel.likeById(post.id)
+        if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+            if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
+        } else {
+            Snackbar.make(requireView(),
+                "You can't like because you're not logged in!",
+                Snackbar.LENGTH_SHORT).apply {
+                setAction(getString(R.string.sign_in),
+                    View.OnClickListener {
+                        findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+                    })
+                show()
+            }
+        }
     }
 
     override fun onShare(post: Post) {
