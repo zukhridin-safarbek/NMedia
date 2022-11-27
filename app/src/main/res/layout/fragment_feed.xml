@@ -5,9 +5,79 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="#ECECEC"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="24dp"
+                android:gravity="center_vertical"
+                android:text="@string/app_name"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_in"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:insetLeft="4dp"
+                android:minWidth="24dp"
+                android:minHeight="24dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/sign_in"
+                android:textColor="?attr/colorControlNormal"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_up"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:insetLeft="4dp"
+                android:minWidth="24dp"
+                android:minHeight="24dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/sign_up"
+                android:textColor="?attr/colorControlNormal"
+                app:layout_constraintEnd_toStartOf="@id/sign_in" />
+
+            <androidx.constraintlayout.widget.Group
+                android:id="@+id/unauthenticated"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:constraint_referenced_ids="sign_in, sign_up"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/sign_out"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:insetLeft="4dp"
+                android:minWidth="24dp"
+                android:minHeight="24dp"
+                android:paddingHorizontal="8dp"
+                android:text="@string/sign_out"
+                android:textColor="?attr/colorControlNormal"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/goUpNewer"
@@ -15,23 +85,24 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:paddingVertical="10dp"
-            android:visibility="gone"
             android:textAllCaps="false"
-            app:backgroundTint="#03DAC5"
             android:textSize="16sp"
+            android:visibility="gone"
+            app:backgroundTint="#03DAC5"
             app:cornerRadius="22dp"
             app:icon="@drawable/ic_go_up"
             app:iconSize="14dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
             tools:text="Свежие записи"
             tools:visibility="visible" />
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipe_refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/toolbar">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/list"

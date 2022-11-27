@@ -46,6 +46,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
                 postDao.save(PostEntity(
                     post.id,
                     post.author,
+                    post.authorId,
                     post.content,
                     publishedDate = post.publishedDate,
                     likedByMe = post.likedByMe,
@@ -68,12 +69,15 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun saveWithAttachment(post: Post, photo: PhotoModel) {
         try {
+            println("before media")
             val media = upload(photo)
+            println("after media")
             PostsApi.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
                 postDao.save(PostEntity(
                     post.id,
                     post.author,
+                    post.authorId,
                     post.content,
                     publishedDate = post.publishedDate,
                     likedByMe = post.likedByMe,
@@ -89,18 +93,28 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)
         } catch (e: Exception) {
-            throw UnknownError(e.message)
+            println(e.message)
+            e.printStackTrace()
+
         }
     }
 
     private suspend fun upload(photo: PhotoModel): Media {
+        println("before response")
+        println("photo.file?.name: ${photo.file?.name}")
         val response = PostsApi.retrofitService.upload(MultipartBody.Part.createFormData("file",
             photo.file?.name,
             requireNotNull(photo.file?.asRequestBody())))
+        println("after response")
+        println(photo.file?.asRequestBody())
+        println("res " + response.isSuccessful)
         if (!response.isSuccessful) {
-            throw Exception(response.code().toString())
+            println("response is no success")
+            println(response.message())
         }
         return requireNotNull(response.body())
+
+
     }
 
     override suspend fun deleteAsync(id: Long) {
