@@ -17,7 +17,7 @@
             android:id="@+id/dialog_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Are sure?"
+            android:text="Are you sure?"
             android:textAlignment="center"
             android:textSize="24sp"
             android:textStyle="bold" />
