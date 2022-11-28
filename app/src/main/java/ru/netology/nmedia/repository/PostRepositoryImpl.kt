@@ -42,21 +42,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun saveAsync(post: Post) {
         try {
-            PostsApi.retrofitService.save(post).isSuccessful.also {
-                postDao.save(PostEntity(
-                    post.id,
-                    post.author,
-                    post.authorId,
-                    post.content,
-                    publishedDate = post.publishedDate,
-                    likedByMe = post.likedByMe,
-                    likes = post.likes,
-                    authorAvatar = post.authorAvatar,
-                    shares = post.shares,
-                    videoLink = post.videoLink,
-                    isInServer = true,
-                ))
-            }
+            PostsApi.retrofitService.save(post)
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)
@@ -73,22 +59,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             val media = upload(photo)
             println("after media")
             PostsApi.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
-                type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
-                postDao.save(PostEntity(
-                    post.id,
-                    post.author,
-                    post.authorId,
-                    post.content,
-                    publishedDate = post.publishedDate,
-                    likedByMe = post.likedByMe,
-                    likes = post.likes,
-                    authorAvatar = post.authorAvatar,
-                    shares = post.shares,
-                    videoLink = post.videoLink,
-                    isInServer = true,
-                    attachment = PostAttachment(url = media.id, type = PostAttachmentTypeEnum.IMAGE)
-                ))
-            }
+                type = PostAttachmentTypeEnum.IMAGE)))
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)

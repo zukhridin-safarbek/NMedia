@@ -108,8 +108,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             photo.value?.let {
                 repository.saveWithAttachment(post.copy(content = text.toString()), it)
                 savePhoto(null, null)
-            } ?: repository.saveAsync(post.copy(content = text.toString(),
-                author = urlText ?: "netologyMe"))
+            } ?: repository.saveAsync(post.copy(content = text.toString()))
         }
         edited.postValue(empty)
     }

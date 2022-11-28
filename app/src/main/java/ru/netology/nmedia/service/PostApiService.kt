@@ -2,6 +2,7 @@ package ru.netology.nmedia.service
 
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
+import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -13,6 +14,7 @@ import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.AuthDto
+import ru.netology.nmedia.dto.RegistrationWithPhoto
 import java.util.concurrent.TimeUnit
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -78,6 +80,15 @@ interface PostApiService {
         @Field("pass") pass: String,
         @Field("name") name: String,
     ): Response<AuthDto>
+
+    @Multipart
+    @POST("users/registration")
+    suspend fun registerUserWithPhoto(
+        @Part("login") login: RequestBody,
+        @Part("pass") pass: RequestBody,
+        @Part("name") name: RequestBody,
+        @Part media: MultipartBody.Part
+    ): Response<RegistrationWithPhoto>
 }
 
 object PostsApi {
