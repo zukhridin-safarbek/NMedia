@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import ru.netology.nmedia.database.AppAuth
 
 class AuthViewModel : ViewModel() {
-    val authState = AppAuth.getInstance()
+     val authState = AppAuth.getInstance()
         .authStateFlow
         .asLiveData(Dispatchers.Default)
 

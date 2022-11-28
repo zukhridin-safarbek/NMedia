@@ -3,7 +3,6 @@ package ru.netology.nmedia.service
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -13,8 +12,7 @@ import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.dto.SignIn
-import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.dto.AuthDto
 import java.util.concurrent.TimeUnit
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -68,7 +66,18 @@ interface PostApiService {
 
     @FormUrlEncoded
     @POST("users/authentication")
-    suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): Response<SignIn>
+    suspend fun updateUser(
+        @Field("login") login: String,
+        @Field("pass") pass: String,
+    ): Response<AuthDto>
+
+    @FormUrlEncoded
+    @POST("users/registration")
+    suspend fun registerUser(
+        @Field("login") login: String,
+        @Field("pass") pass: String,
+        @Field("name") name: String,
+    ): Response<AuthDto>
 }
 
 object PostsApi {

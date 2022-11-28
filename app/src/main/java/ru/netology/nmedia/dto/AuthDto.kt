@@ -1,6 +1,6 @@
 package ru.netology.nmedia.dto
 
-data class SignIn(
+data class AuthDto(
     val id: Long,
     val token: String,
 )
