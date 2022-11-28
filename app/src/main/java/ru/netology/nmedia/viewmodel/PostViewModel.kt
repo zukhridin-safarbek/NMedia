@@ -3,6 +3,9 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.FeedModel
@@ -17,7 +20,7 @@ import java.lang.Exception
 
 private val empty = Post(
     id = 0,
-    author = "Netology",
+    author = "",
     content = "",
     publishedDate = "now",
     likedByMe = false,
@@ -33,12 +36,20 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
     val serverNoConnection = MutableLiveData<Boolean>()
-    val data: LiveData<FeedModel> = serverRepository.posts.map { FeedModel(it.map(PostEntity::toDto), it.isEmpty()) }
-    val dataEntity: LiveData<List<PostEntity>> = serverRepository.posts
+    val data: LiveData<FeedModel> =
+        serverRepository.posts.map { FeedModel(it.map(PostEntity::toDto), it.isEmpty()) }
+            .catch { e -> e.printStackTrace() }
+            .asLiveData(Dispatchers.Default)
     private val _state = MutableLiveData<FeedModelState>()
     val state: LiveData<FeedModelState>
         get() = _state
     private val edited = MutableLiveData(empty)
+    val newerCount: LiveData<Int> = data.switchMap {
+        serverRepository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .asLiveData(Dispatchers.Default)
+    }
+
+
     fun edit(post: Post) {
         edited.value = post
     }
@@ -47,10 +58,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         getData()
     }
 
-     fun reSend(post: Post) = viewModelScope.launch{
-         println("top resend viewModel")
-         serverRepository.reSendPostToServer(post)
-         println("bottom resend viewModel")
+    fun reSend(post: Post) = viewModelScope.launch {
+        println("top resend viewModel")
+        serverRepository.reSendPostToServer(post)
+        println("bottom resend viewModel")
     }
 
 
@@ -79,7 +90,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val text = content?.trim()
         val urlText = url?.trim()
         edited.value?.let {
-            serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText))
+            serverRepository.saveAsync(it.copy(content = text.toString(),
+                author = urlText ?: "netologyMe"))
         }
         edited.postValue(empty)
     }
@@ -108,10 +120,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun removeById(id: Long) = viewModelScope.launch {
         try {
             serverRepository.deleteAsync(id)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             _state.value = FeedModelState.Error
         }
 
+    }
+
+    fun newer() = viewModelScope.launch {
+        serverRepository.newer()
     }
 
 

@@ -1,17 +1,11 @@
 package ru.netology.nmedia.repository
 
-import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import ru.netology.nmedia.dao.PostDao
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import java.lang.Exception
 
 interface PostRepository {
-    val posts: LiveData<List<PostEntity>>
+    val posts: Flow<List<PostEntity>>
     suspend fun likeByIdAsync(id: Long)
     suspend fun dislikeByIdAsync(id: Long)
     suspend fun shareById(id: Long)
@@ -19,4 +13,5 @@ interface PostRepository {
     suspend fun deleteAsync(id: Long)
     suspend fun getAllFromServerAsync(): List<Post>
     suspend fun reSendPostToServer(post: Post)
+    fun getNewerCount(id: Long):Flow<Int>
 }

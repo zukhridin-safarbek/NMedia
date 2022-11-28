@@ -56,8 +56,6 @@ class EditDetailPostFragment: Fragment() {
     }
 
     companion object {
-        var Bundle.detailContentText: String? by DataTransferArg
-        var Bundle.detailLinkText: String? by DataTransferArg
         var Bundle.detailIdPostEdit: String? by DataTransferArg
     }
 }

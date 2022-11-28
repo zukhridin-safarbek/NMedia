@@ -2,13 +2,14 @@ package ru.netology.nmedia.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
-    @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): LiveData<List<PostEntity>>
+    @Query("SELECT * FROM PostEntity WHERE showed = 1 ORDER BY id DESC")
+    fun getAll(): Flow<List<PostEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: PostEntity)
@@ -18,6 +19,10 @@ interface PostDao {
 
     @Query("UPDATE PostEntity SET content = :content, videoLink = :videoLink WHERE id = :id")
     suspend fun updateContentById(id: Long, content: String, videoLink: String?)
+
+    @Query("UPDATE PostEntity SET showed = 1")
+    suspend fun changeNewerShowed()
+
 
     suspend fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else updateContentById(post.id, post.content, post.videoLink)
