@@ -2,16 +2,12 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.database.AppDb
-import ru.netology.nmedia.repository.*
-import java.io.IOException
-import java.lang.Exception
-import kotlin.concurrent.thread
+import ru.netology.nmedia.repository.Callback
+import ru.netology.nmedia.repository.PostRepositoryImpl
 
 
 private val empty = Post(
@@ -33,14 +29,13 @@ data class FeedModel(
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: PostRepository = PostRepositoryRoomImpl(
-        AppDb.getInstance(application).postDao()
-    )
     private val serverRepository = PostRepositoryImpl()
-
+    private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
-    val _data = MutableLiveData<FeedModel>()
+    val responseStatusError = MutableLiveData<String>()
+    val serverNoConnection = MutableLiveData<Boolean>()
+    private val _data = MutableLiveData<FeedModel>()
     val data: LiveData<FeedModel>
         get() = _data
     private val edited = MutableLiveData(empty)
@@ -54,71 +49,85 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
 
     private fun getData() {
-        _data.postValue(FeedModel(loading = true))
-        serverRepository.getAllFromServerAsync(object : PostRepoServer.Callback<List<Post>> {
-            override fun onSuccess(posts: List<Post>) {
-                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+        _data.value = FeedModel(loading = true)
+        serverRepository.getAllFromServerAsync(object : Callback<List<Post>> {
+            override fun onSuccess(value: List<Post>) {
+                _data.value = FeedModel(posts = value, empty = value.isEmpty())
+                listPosts = value
+
             }
 
             override fun error(e: Exception) {
-                _data.postValue(FeedModel(error = true))
+                _data.value = FeedModel(error = true)
+                responseStatusError.postValue(e.message)
+                serverNoConnection.postValue(true)
             }
         })
     }
 
 
     fun changeContentAndSave(content: String?, url: String?) {
-             val text = content?.trim()
-                val urlText = url?.trim()
-                if (edited.value?.content == text && edited.value?.videoLink == urlText) {
-                    return
-                }
-                edited.value?.let {
-                     serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText),
-                        object : PostRepoServer.Callback<Post> {
-                            override fun onSuccess(posts: Post) {
-                            }
-                            override fun error(e: Exception) {
-                            }
-                        })
-                }
-                edited.postValue(empty)
-                getData()
+        val text = content?.trim()
+        val urlText = url?.trim()
+        if (edited.value?.content == text && edited.value?.videoLink == urlText) {
+            return
+        }
+        edited.value?.let {
+            serverRepository.saveAsync(it.copy(content = text.toString(), authorAvatar = urlText),
+                object : Callback<Post> {
+                    override fun onSuccess(value: Post) {
+                        listPosts = listPosts.map { post ->
+                            if (post.id == value.id || value.id == 0L) value else post
+                        }
+                        _data.value = FeedModel(posts = listPosts)
+                    }
+                    override fun error(e: Exception) {
+                        responseStatusError.postValue(e.message)
+                    }
+                })
+        }
+        edited.postValue(empty)
     }
 
-    fun likeById(id: Long) =
-        serverRepository.likeByIdAsync(id, object : PostRepoServer.Callback<Post> {
-            override fun onSuccess(posts: Post) {
-                super.onSuccess(posts)
-                getData()
+    fun likeById(id: Long) {
+        serverRepository.likeByIdAsync(id, object : Callback<Post> {
+            override fun onSuccess(value: Post) {
+                listPosts = listPosts.map { post ->
+                    if (post.id == id) value else post
+                }
+                _data.value = FeedModel(posts = listPosts)
             }
 
             override fun error(e: Exception) {
-                super.error(e)
+                _data.value = FeedModel(error = true)
+                responseStatusError.postValue(e.message)
             }
         })
 
+    }
 
 
     fun shareByID(id: Long) {
         TODO()
     }
 
-    fun removeById(id: Long) =
-        serverRepository.removeByIdAsync(id, object : PostRepoServer.Callback<Unit> {
-            override fun onSuccess(posts: Unit) {
-                super.onSuccess(posts)
+    fun removeById(id: Long) {
+        serverRepository.deleteAsync(id, object : Callback<Unit> {
+            override fun onSuccess(value: Unit) {
+                println("onSuccess")
                 getData()
             }
 
             override fun error(e: Exception) {
-                super.error(e)
+                responseStatusError.postValue(e.message)
             }
         })
 
+    }
+
 
     fun refresh() {
-            getData()
+        getData()
     }
 
 }

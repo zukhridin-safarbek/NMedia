@@ -50,6 +50,7 @@ class PostsAdapter(
         fun bind(post: Post, listener: ItemListener) {
             val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
+                postAuthor.text = post.author
                 postPublishedDate.text = date.shuffled()[0]
                 postContent.text = post.attachment?.component2() ?: post.content
                 likeIcon.text = post.likes.toString()
