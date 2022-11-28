@@ -14,6 +14,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
+import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.fragment.ItemListener
 
 interface OnInteractionListener {
@@ -22,6 +23,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onRemove(post: Post)
     fun playVideo(post: Post)
+    fun reSendPostToServerClick(post: Post)
 }
 
 class PostsAdapter(
@@ -50,7 +52,7 @@ class PostsAdapter(
         fun bind(post: Post, listener: ItemListener) {
             val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
-                postAuthor.text = post.author
+                postAuthor.text = "${post.author} : ${post.isInServer}"
                 postPublishedDate.text = date.shuffled()[0]
                 postContent.text = post.attachment?.component2() ?: post.content
                 likeIcon.text = post.likes.toString()
@@ -66,11 +68,20 @@ class PostsAdapter(
                 } else {
                     playBtn.visibility = View.GONE
                 }
+                groupContentImageAndSeparator.visibility = View.GONE
                 if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
                     getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
                         postContentImage)
                 } else {
                     groupContentImageAndSeparator.visibility = View.GONE
+                }
+                if (post.isInServer == false){
+                    reSend.visibility = View.VISIBLE
+                    reSend.setOnClickListener {
+                        onInteractionListener.reSendPostToServerClick(post)
+                    }
+                }else{
+                    reSend.visibility = View.GONE
                 }
                 itemPost = post
                 postMenuBtn.setOnClickListener {

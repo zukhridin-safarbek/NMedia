@@ -5,19 +5,17 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.coroutineScope
+import ru.netology.nmedia.FeedModelState
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -26,6 +24,8 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.util.CheckNetworkConnection
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -71,8 +71,7 @@ class FeedFragment : Fragment(), ItemListener {
     private fun controlAdapter() {
         adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
-                showServerError()
+                if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
             }
 
 
@@ -80,17 +79,6 @@ class FeedFragment : Fragment(), ItemListener {
                 Toast.makeText(requireContext(),
                     "Backend don't give link for share by id",
                     Toast.LENGTH_SHORT).show()
-//                val intent = Intent().apply {
-//                    action = Intent.ACTION_SEND
-//                    putExtra(Intent.EXTRA_TEXT, post.content)
-//                    type = "text/plain"
-//                }
-//                val shareIntent = Intent.createChooser(intent, getString(R.string.share_post))
-//                startActivity(shareIntent)
-//                if (intent.action == Intent.ACTION_SEND) {
-//                    viewModel.shareByID(post.id)
-//                }
-                showServerError()
             }
 
             override fun onEdit(post: Post) {
@@ -101,13 +89,10 @@ class FeedFragment : Fragment(), ItemListener {
                         link = post.videoLink
                         checkForDraft = "clickedEditBtn"
                     })
-                showServerError()
             }
 
             override fun onRemove(post: Post) {
-                showServerError()
                 viewModel.removeById(post.id)
-                binding.list.smoothScrollToPosition(postsList.size)
             }
 
             override fun playVideo(post: Post) {
@@ -122,18 +107,17 @@ class FeedFragment : Fragment(), ItemListener {
                 }
             }
 
+            override fun reSendPostToServerClick(post: Post) {
+                viewModel.reSend(post)
+            }
+
         }, this)
     }
 
     private fun controlSwipeRefreshLayout() {
         binding.swipeRefreshLayout.setOnRefreshListener {
-            showServerError()
             viewModel.refresh()
-            binding.progress.isVisible = false
-            viewModel.data.observe(viewLifecycleOwner) { state ->
-                binding.swipeRefreshLayout.isRefreshing = state.loading
-                binding.progress.isVisible = false
-            }
+
         }
     }
 
@@ -146,49 +130,25 @@ class FeedFragment : Fragment(), ItemListener {
         }
     }
 
-    private fun showServerError() {
-        viewModel.responseStatusError.observe(viewLifecycleOwner) { responseStatusError ->
-            if (!responseStatusError.isNullOrEmpty()) {
-                viewModel.serverNoConnection.observe(viewLifecycleOwner) { serverNoConnection ->
-                    if (serverNoConnection) {
-                        binding.reloadPostsFromServer.visibility = View.VISIBLE
-                        binding.reloadPostsFromServer.setOnClickListener {
-                            viewModel.refresh()
-                            postLoadOnCreate()
-                            binding.reloadPostsFromServer.visibility = View.GONE
-                        }
-                        Toast.makeText(requireContext(), responseStatusError, Toast.LENGTH_SHORT).show()
-                    }
-
-                }
-
-                if (viewModel.serverNoConnection.value == false) {
-                    Toast.makeText(requireContext(), responseStatusError, Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                binding.reloadPostsFromServer.visibility = View.GONE
-                return@observe
-            }
-        }
-    }
-
     private fun postLoadOnCreate() {
         binding.list.adapter = adapter
         viewModel.data.observe(viewLifecycleOwner) { state ->
             postsList = state.posts
             adapter.submitList(postsList)
-            binding.progress.isVisible = state.loading
-            binding.emptyText.isVisible = state.empty
-            if (postsList.isEmpty() && !state.loading) {
-                binding.reloadPostsFromServer.visibility = View.VISIBLE
-                showServerError()
-            } else {
-                binding.reloadPostsFromServer.visibility = View.GONE
-            }
-            if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false){
+            if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
                 binding.addOrEditBtn.visibility = View.VISIBLE
             }
-
+        }
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state is FeedModelState.Loading
+            binding.swipeRefreshLayout.isRefreshing = state is FeedModelState.Refreshing
+            if (state is FeedModelState.Error || !CheckNetworkConnection.isNetworkAvailable(
+                    requireContext())
+            ) {
+                Snackbar.make(binding.root, "Error Feed Model", Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.retry) { viewModel.refresh() }
+                    .show()
+            }
 
         }
     }

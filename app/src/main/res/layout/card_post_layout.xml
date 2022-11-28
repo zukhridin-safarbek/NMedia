@@ -177,12 +177,29 @@
         android:layout_gravity="center_vertical"
         android:drawableStart="@drawable/ic_baseline_visibility_24"
         android:drawablePadding="4dp"
+        android:layout_marginEnd="8dp"
         android:textColor="?attr/colorControlNormal"
         app:drawableTint="#757575"
         app:layout_constraintBottom_toBottomOf="@id/like_icon"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/reSend"
         app:layout_constraintTop_toTopOf="@id/like_icon"
         tools:text="512" />
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reSend"
+        style="@style/Widget.AppTheme.Tint.Icons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:padding="2dp"
+        app:icon="@drawable/ic_baseline_refresh"
+        app:iconTint="#F44336"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@id/like_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/like_icon" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

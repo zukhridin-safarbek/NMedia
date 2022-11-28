@@ -26,7 +26,6 @@ abstract class AppDb : RoomDatabase() {
             Room.databaseBuilder(
                 context, AppDb::class.java, PostColumns.DATABASE_NAME
             )
-                .allowMainThreadQueries()
                 .build()
     }
 }

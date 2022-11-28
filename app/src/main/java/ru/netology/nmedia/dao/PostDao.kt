@@ -1,25 +1,25 @@
 package ru.netology.nmedia.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 
 @Dao
 interface PostDao {
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun getAll(): List<PostEntity>
+    fun getAll(): LiveData<List<PostEntity>>
 
-    @Insert
-    fun insert(post: PostEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(post: PostEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(post: List<PostEntity>)
 
     @Query("UPDATE PostEntity SET content = :content, videoLink = :videoLink WHERE id = :id")
-    fun updateContentById(id: Long, content: String, videoLink: String?)
+    suspend fun updateContentById(id: Long, content: String, videoLink: String?)
 
-    fun save(post: PostEntity) =
+    suspend fun save(post: PostEntity) =
         if (post.id == 0L) insert(post) else updateContentById(post.id, post.content, post.videoLink)
     @Query("""
         UPDATE PostEntity SET
@@ -27,17 +27,22 @@ interface PostDao {
         likedByMe = CASE WHEN likedByMe THEN 0 ELSE 1 END
         WHERE id = :id
     """)
-    fun likedById(id: Long)
+    suspend fun likedById(id: Long)
 
     @Query("""
         DELETE FROM PostEntity WHERE id = :id
     """)
-    fun removedById(id: Long)
+    suspend fun removedById(id: Long)
+
+    @Query("""
+        DELETE FROM PostEntity
+    """)
+    suspend fun deleteAll()
 
     @Query("""
         UPDATE PostEntity
         SET shares = shares + 1
         WHERE id = :id
     """)
-    fun sharedById(id: Long)
+    suspend fun sharedById(id: Long)
 }
