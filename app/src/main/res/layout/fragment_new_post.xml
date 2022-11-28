@@ -5,53 +5,137 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/footer"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent">
+        android:layout_height="?attr/actionBarSize"
+        android:background="#ECECEC"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.bottomappbar.BottomAppBar
-            android:id="@+id/bottomAppBar"
-            style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/ok"
+        <TextView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:contentDescription="@string/add_or_edit_post"
-            app:layout_anchor="@id/bottomAppBar"
-            app:srcCompat="@drawable/ic_baseline_add_24" />
+            android:layout_height="match_parent"
+            android:layout_marginStart="24dp"
+            android:gravity="center_vertical"
+            android:text="@string/app_name"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:insetLeft="4dp"
+            android:minWidth="24dp"
+            android:layout_marginEnd="4dp"
+            android:minHeight="24dp"
+            android:paddingHorizontal="8dp"
+            app:icon="@drawable/ic_baseline_check"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorControlNormal"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
-        android:id="@+id/content"
+
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="@null"
-        android:gravity="top"
-        android:hint="@string/app_name"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine"
-        android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@id/videoUrl"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toTopOf="@id/bottom_toolbar"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-    <EditText
-        android:id="@+id/videoUrl"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:gravity="start|top"
+                android:hint="@string/app_name"
+                android:importantForAutofill="no"
+                android:inputType="textMultiLine"
+                android:minHeight="150dp"
+                android:padding="10dp"
+                tools:text="@tools:sample/lorem[100]" />
+
+            <EditText
+                android:id="@+id/videoUrl"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:background="@null"
+                android:gravity="center_vertical"
+                android:hint="@string/video_link"
+                android:importantForAutofill="no"
+                android:inputType="textUri"
+                android:padding="10dp" />
+
+            <FrameLayout
+                android:id="@+id/image_view_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                app:layout_constraintBottom_toTopOf="@id/bottom_toolbar">
+
+                <ImageView
+                    android:id="@+id/preview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    tools:src="@tools:sample/avatars[7]" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/clear_photo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:text="@string/clear_photo"
+                    app:elevation="2dp" />
+            </FrameLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/bottom_toolbar"
+        style="@style/Widget.MaterialComponents.BottomAppBar"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@null"
-        android:gravity="center_vertical"
-        android:hint="@string/video_link"
-        android:importantForAutofill="no"
-        android:inputType="textUri"
-        android:padding="10dp"
-        app:layout_constraintBottom_toTopOf="@id/footer" />
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        android:background="#ECECEC"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/gallery_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:insetLeft="4dp"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            android:paddingHorizontal="8dp"
+            app:icon="@drawable/ic_baseline_image"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorControlNormal" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/camera_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:insetLeft="4dp"
+            android:minWidth="24dp"
+            android:minHeight="24dp"
+            android:paddingHorizontal="8dp"
+            app:icon="@drawable/ic_baseline_photo_camera"
+            app:iconSize="24dp"
+            app:iconTint="?attr/colorControlNormal" />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

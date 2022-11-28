@@ -6,16 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.databinding.FragmentEditDetailPostBinding
+import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.fragment.DetailFragment.Companion.detailContent
 import ru.netology.nmedia.fragment.DetailFragment.Companion.detailLink
-import ru.netology.nmedia.fragment.FeedFragment.Companion.content
-import ru.netology.nmedia.fragment.FeedFragment.Companion.link
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.viewmodel.PostViewModel
 

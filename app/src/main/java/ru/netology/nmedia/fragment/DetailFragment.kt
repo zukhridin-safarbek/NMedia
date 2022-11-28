@@ -69,7 +69,7 @@ class DetailFragment : Fragment(), OnInteractionListener {
                         ru.netology.nmedia.adapter.getAvatarFromServer("${post.authorAvatar}",
                             postAvatar)
                         if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
-                            ru.netology.nmedia.adapter.getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
+                            ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),
                                 postContentImage)
                         } else {
                             groupContentImageAndSeparator.visibility = View.GONE

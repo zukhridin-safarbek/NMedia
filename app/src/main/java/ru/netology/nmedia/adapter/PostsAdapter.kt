@@ -5,7 +5,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -14,7 +13,6 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
-import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.fragment.ItemListener
 
 interface OnInteractionListener {
@@ -22,7 +20,7 @@ interface OnInteractionListener {
     fun onShare(post: Post)
     fun onEdit(post: Post)
     fun onRemove(post: Post)
-    fun playVideo(post: Post)
+    fun showPhoto(post: Post)
     fun reSendPostToServerClick(post: Post)
 }
 
@@ -55,24 +53,20 @@ class PostsAdapter(
                 postAuthor.text = "${post.author} : ${position}"
 
                 postPublishedDate.text = date.shuffled()[0]
-                postContent.text = post.attachment?.component2() ?: post.content
+                postContent.text = post.content
                 likeIcon.text = post.likes.toString()
                 shareIcon.text = post.shares.toString()
                 likeIcon.isChecked = post.likedByMe
                 viewIcon.text = (12434).toString()
                 getAvatarFromServer("${post.authorAvatar}", postAvatar)
-                if (!post.videoLink.isNullOrBlank()) {
-                    playBtn.visibility = View.VISIBLE
-                    playBtn.setOnClickListener {
-                        onInteractionListener.playVideo(post)
-                    }
-                } else {
-                    playBtn.visibility = View.GONE
-                }
-                groupContentImageAndSeparator.visibility = View.GONE
+
+
                 if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
-                    getContentImageFromServer("http://10.0.2.2:9999/images/${post.attachment.component1()}",
+                    getContentImageFromServer(post.attachment.component1(),
                         postContentImage)
+                    postContentImage.setOnClickListener {
+                        onInteractionListener.showPhoto(post)
+                    }
                 } else {
                     groupContentImageAndSeparator.visibility = View.GONE
                 }
@@ -163,7 +157,7 @@ fun getAvatarFromServer(name: String, view: ImageView) {
 
 fun getContentImageFromServer(url: String, view: ImageView) {
     Glide.with(view)
-        .load(url)
+        .load("http://10.0.2.2:9999/media/$url")
         .timeout(10000)
         .error(R.drawable.ic_baseline_close_24)
         .into(view)

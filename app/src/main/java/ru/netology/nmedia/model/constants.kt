@@ -1,4 +1,4 @@
-package ru.netology.nmedia
+package ru.netology.nmedia.model
 
 const val channelId = "remote"
 const val dbUrl = "https://nmedia.firebaseio.com"

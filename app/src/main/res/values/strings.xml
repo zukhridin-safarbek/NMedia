@@ -16,4 +16,7 @@
     <string name="retry">retry</string>
     <string name="go_up_newer">Свежие записи</string>
     <string name="error_404">error 404</string>
+    <string name="clear_photo">clear photo</string>
+    <string name="save">Save</string>
+    <string name="back">back</string>
 </resources>

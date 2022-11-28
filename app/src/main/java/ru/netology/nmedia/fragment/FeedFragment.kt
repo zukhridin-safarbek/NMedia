@@ -1,9 +1,7 @@
 package ru.netology.nmedia.fragment
 
-import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.coroutineScope
-import ru.netology.nmedia.FeedModelState
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -24,7 +21,6 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
-import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.util.CheckNetworkConnection
 
 class FeedFragment : Fragment(), ItemListener {
@@ -95,16 +91,11 @@ class FeedFragment : Fragment(), ItemListener {
                 viewModel.removeById(post.id)
             }
 
-            override fun playVideo(post: Post) {
-                if (Uri.parse(post.videoLink).isAbsolute) {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(post.videoLink)))
-                } else {
-                    Snackbar.make(binding.root, "it is no link!", Snackbar.LENGTH_SHORT)
-                        .setAction(R.string.edit_post) {
-                            onEdit(post)
-                        }
-                        .show()
-                }
+            override fun showPhoto(post: Post) {
+                findNavController().navigate(R.id.action_feedFragment_to_showPhoto,
+                    Bundle().apply {
+                        postId = post.id.toString()
+                    })
             }
 
             override fun reSendPostToServerClick(post: Post) {
@@ -153,7 +144,6 @@ class FeedFragment : Fragment(), ItemListener {
         viewModel.data.observe(viewLifecycleOwner) { state ->
             postsList = state.posts
             println("posts ${state.posts.firstOrNull()?.id}")
-
             adapter.submitList(postsList)
             if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
                 binding.addOrEditBtn.visibility = View.VISIBLE
@@ -189,6 +179,7 @@ class FeedFragment : Fragment(), ItemListener {
         var Bundle.content: String? by DataTransferArg
         var Bundle.link: String? by DataTransferArg
         var Bundle.postId: String? by DataTransferArg
+        var Bundle.imageUrl: String? by DataTransferArg
         var Bundle.checkForDraft: String? by DataTransferArg
     }
 }
