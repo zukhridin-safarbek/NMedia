@@ -11,6 +11,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PostAttachment
@@ -24,6 +25,7 @@ import java.lang.RuntimeException
 
 class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     override val posts: Flow<List<PostEntity>> = postDao.getAll().flowOn(Dispatchers.Default)
+
 
     override suspend fun likeByIdAsync(id: Long) {
         postDao.likedById(id)
@@ -62,8 +64,16 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             val media = upload(photo)
             println("after media")
             PostsApi.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
-                type = PostAttachmentTypeEnum.IMAGE)))
+                type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
+                postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
+                    description = null,
+                    type = PostAttachmentTypeEnum.IMAGE),
+                    authorAvatar = AppAuth.getInstance().authStateFlow.value?.avatar
+                        ?: "Avatar null", isInServer = true)))
+            }
+            println("AppAuth.getInstance().authStateFlow.value?.avatar" + AppAuth.getInstance().authStateFlow.value?.avatar)
         } catch (e: IOException) {
+            println("IoExceptiopn my")
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)
         } catch (e: Exception) {

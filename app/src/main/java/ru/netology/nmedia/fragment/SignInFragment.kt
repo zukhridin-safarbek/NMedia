@@ -6,6 +6,7 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -34,11 +35,15 @@ class SignInFragment : Fragment() {
         binding.submit.setOnClickListener {
             authViewModel.signIn(binding.loginTILET.text.toString(),
                 binding.passwordTILET.text.toString())
-            Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+            authViewModel.responseCode.observe(viewLifecycleOwner) {
+                if (it.code.toString()[0] == '2') {
                     findNavController().navigateUp()
+                } else {
+                    Toast.makeText(requireContext(),
+                        "code - ${it.code}, message - ${it.message}",
+                        Toast.LENGTH_SHORT).show()
                 }
-            }, 200)
+            }
         }
     }
 }

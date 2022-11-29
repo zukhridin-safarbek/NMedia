@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
+import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.viewmodel.RegisterUserViewModel
@@ -51,16 +52,21 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.signUp.setOnClickListener {
+
             if (binding.passwordTIET.text.toString() == binding.confirmPasswordTIET.text.toString()) {
                 viewModel.registerWithPhoto(binding.loginTIET.text.toString(),
                     binding.passwordTIET.text.toString(),
                     binding.nameTIET.text.toString())
-                Handler(Looper.getMainLooper()).postDelayed(Runnable {
-                    if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+                viewModel.responseCode.observe(viewLifecycleOwner) {
+                    if (it.code.toString()[0] == '2') {
                         findNavController().navigateUp()
                         viewModel.savePhoto(null, null)
+                    } else {
+                        Toast.makeText(requireContext(),
+                            "code - ${it.code}, message - ${it.message}",
+                            Toast.LENGTH_SHORT).show()
                     }
-                }, 200)
+                }
             } else {
                 binding.confirmPasswordTIL.error = "Passwords not equal"
             }
