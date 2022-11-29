@@ -1,8 +1,6 @@
 package ru.netology.nmedia.repository
 
 import android.accounts.NetworkErrorException
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -18,7 +16,7 @@ import ru.netology.nmedia.dto.PostAttachment
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
-import ru.netology.nmedia.service.PostsApi
+import ru.netology.nmedia.service.Api
 import java.io.IOException
 import java.lang.Exception
 import java.lang.RuntimeException
@@ -29,14 +27,14 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun likeByIdAsync(id: Long) {
         postDao.likedById(id)
-        PostsApi.retrofitService.likeById(id)
+        Api.retrofitService.likeById(id)
         BuildConfig.BASE_URL
     }
 
 
     override suspend fun dislikeByIdAsync(id: Long) {
         postDao.likedById(id)
-        PostsApi.retrofitService.dislikeById(id)
+        Api.retrofitService.dislikeById(id)
     }
 
 
@@ -47,7 +45,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun saveAsync(post: Post) {
         try {
-            PostsApi.retrofitService.save(post)
+            Api.retrofitService.save(post)
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)
@@ -63,7 +61,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             println("before media")
             val media = upload(photo)
             println("after media")
-            PostsApi.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
+            Api.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
                 postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
                     description = null,
@@ -86,7 +84,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     private suspend fun upload(photo: PhotoModel): Media {
         println("before response")
         println("photo.file?.name: ${photo.file?.name}")
-        val response = PostsApi.retrofitService.upload(MultipartBody.Part.createFormData("file",
+        val response = Api.retrofitService.upload(MultipartBody.Part.createFormData("file",
             photo.file?.name,
             requireNotNull(photo.file?.asRequestBody())))
         println("after response")
@@ -102,14 +100,14 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     override suspend fun deleteAsync(id: Long) {
-        PostsApi.retrofitService.deleteById(id)
+        Api.retrofitService.deleteById(id)
         postDao.removedById(id)
     }
 
 
     override suspend fun getAllFromServerAsync(): List<Post> {
         try {
-            val response = PostsApi.retrofitService.getAllPosts()
+            val response = Api.retrofitService.getAllPosts()
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -134,7 +132,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             posts.map { postList ->
                 postList.map { postIt ->
                     if (postIt.isInServer == false && post.id == postIt.id) {
-                        PostsApi.retrofitService.save(post.copy(id = 0L))
+                        Api.retrofitService.save(post.copy(id = 0L))
                         postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
                     }
                 }
@@ -152,7 +150,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         while (true) {
             try {
                 delay(10_000L)
-                val response = PostsApi.retrofitService.getNewer(id)
+                val response = Api.retrofitService.getNewer(id)
                 if (!response.isSuccessful) {
                     throw Exception(response.message())
                 }

@@ -52,7 +52,6 @@ class RegistrationFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.signUp.setOnClickListener {
-
             if (binding.passwordTIET.text.toString() == binding.confirmPasswordTIET.text.toString()) {
                 viewModel.registerWithPhoto(binding.loginTIET.text.toString(),
                     binding.passwordTIET.text.toString(),

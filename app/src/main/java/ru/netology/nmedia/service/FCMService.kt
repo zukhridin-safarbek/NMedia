@@ -9,10 +9,12 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import ru.netology.nmedia.R
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.model.channelId
 import ru.netology.nmedia.dto.Action
 import ru.netology.nmedia.dto.Like
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.NotificationModel
 import java.io.InputStream
 import java.lang.Exception
 import java.net.HttpURLConnection
@@ -27,10 +29,11 @@ class FCMService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.data[action]?.let {
             try {
-                when(Action.valueOf(it.uppercase())){
-                    Action.LIKE -> handleLike(gson.fromJson(remoteMessage.data[content], Like::class.java))
+                when (Action.valueOf(it.uppercase())) {
+                    Action.LIKE -> handleLike(gson.fromJson(remoteMessage.data[content],
+                        Like::class.java))
                 }
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(action, "no enum constants how $it")
                 null
             }
@@ -39,7 +42,16 @@ class FCMService : FirebaseMessagingService() {
         Log.d(action, "From: ${remoteMessage.from}")
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(action, "Message data payload: ${remoteMessage.data}")
-            sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+            val data = gson.fromJson(remoteMessage.data[content], NotificationModel::class.java)
+            if (data.recipientId == AppAuth.getInstance().authStateFlow.value?.id) {
+                sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+            }else if(data.recipientId == 0L){
+                AppAuth.getInstance().sendPushToken()
+            }else if(data.recipientId != 0L && data.recipientId != AppAuth.getInstance().authStateFlow.value?.id){
+                AppAuth.getInstance().sendPushToken()
+            }else if(data.recipientId == null){
+                sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+            }
         }
     }
 
@@ -59,6 +71,7 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         println(token)
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {
@@ -86,7 +99,7 @@ class FCMService : FirebaseMessagingService() {
 
             val input: InputStream = connection.inputStream
             BitmapFactory.decodeStream(input)
-        }catch (e: Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             null
         }

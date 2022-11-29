@@ -8,8 +8,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.model.ResponseModel
-import ru.netology.nmedia.service.PostsApi
-import kotlin.math.log
+import ru.netology.nmedia.service.Api
 
 interface AuthRepository {
     suspend fun signIn(login: String, password: String)
@@ -29,7 +28,7 @@ class AuthRepositoryImpl() : AuthRepository {
     override var responseCode: SharedFlow<ResponseModel> = _responseCode.asSharedFlow()
     override suspend fun signIn(login: String, password: String) {
         try {
-            val response = PostsApi.retrofitService.updateUser(login, password)
+            val response = Api.retrofitService.updateUser(login, password)
             if (response.isSuccessful) {
                 val id = response.body()?.id
                 val token = response.body()?.token
@@ -45,7 +44,7 @@ class AuthRepositoryImpl() : AuthRepository {
 
     override suspend fun registerUser(login: String, password: String, name: String) {
         try {
-            val response = PostsApi.retrofitService.registerUser(login, password, name)
+            val response = Api.retrofitService.registerUser(login, password, name)
             if (response.isSuccessful) {
                 val id = response.body()?.id
                 val token = response.body()?.token
@@ -69,7 +68,7 @@ class AuthRepositoryImpl() : AuthRepository {
 
         try {
             val response =
-                PostsApi.retrofitService.registerUserWithPhoto(login.toRequestBody("text/plain".toMediaType()),
+                Api.retrofitService.registerUserWithPhoto(login.toRequestBody("text/plain".toMediaType()),
                     password.toRequestBody("text/plain".toMediaType()),
                     name.toRequestBody("text/plain".toMediaType()),
                     MultipartBody.Part.createFormData("file",

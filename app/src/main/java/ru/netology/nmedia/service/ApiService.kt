@@ -15,6 +15,7 @@ import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.AuthDto
 import ru.netology.nmedia.dto.RegistrationWithPhoto
+import ru.netology.nmedia.model.PushToken
 import java.util.concurrent.TimeUnit
 
 private val logging = HttpLoggingInterceptor().apply {
@@ -89,9 +90,12 @@ interface PostApiService {
         @Part("name") name: RequestBody,
         @Part media: MultipartBody.Part
     ): Response<RegistrationWithPhoto>
+
+    @POST("users/push-tokens")
+    suspend fun saveToken(@Body pushToken: PushToken): Response<Unit>
 }
 
-object PostsApi {
+object Api {
     val retrofitService: PostApiService by lazy {
         retrofit.create()
     }
