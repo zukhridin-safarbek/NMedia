@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
@@ -27,7 +28,9 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     override suspend fun likeByIdAsync(id: Long) {
         postDao.likedById(id)
         PostsApi.retrofitService.likeById(id)
+        BuildConfig.BASE_URL
     }
+
 
     override suspend fun dislikeByIdAsync(id: Long) {
         postDao.likedById(id)

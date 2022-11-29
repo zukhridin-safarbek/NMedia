@@ -22,24 +22,32 @@ interface AuthRepository {
 
 class AuthRepositoryImpl() : AuthRepository {
     override suspend fun signIn(login: String, password: String) {
-        val response = PostsApi.retrofitService.updateUser(login, password)
-        if (response.isSuccessful) {
-            val id = response.body()?.id
-            val token = response.body()?.token
-            if (id != null && token != null) {
-                AppAuth.getInstance().setAuth(id, token)
+        try {
+            val response = PostsApi.retrofitService.updateUser(login, password)
+            if (response.isSuccessful) {
+                val id = response.body()?.id
+                val token = response.body()?.token
+                if (id != null && token != null) {
+                    AppAuth.getInstance().setAuth(id, token)
+                }
             }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
         }
     }
 
     override suspend fun registerUser(login: String, password: String, name: String) {
-        val response = PostsApi.retrofitService.registerUser(login, password, name)
-        if (response.isSuccessful) {
-            val id = response.body()?.id
-            val token = response.body()?.token
-            if (id != null && token != null) {
-                AppAuth.getInstance().setAuth(id, token)
+        try {
+            val response = PostsApi.retrofitService.registerUser(login, password, name)
+            if (response.isSuccessful) {
+                val id = response.body()?.id
+                val token = response.body()?.token
+                if (id != null && token != null) {
+                    AppAuth.getInstance().setAuth(id, token)
+                }
             }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -49,21 +57,25 @@ class AuthRepositoryImpl() : AuthRepository {
         name: String,
         photo: PhotoModel,
     ) {
-        println("photo.file?.name" +photo.file?.name)
+        println("photo.file?.name" + photo.file?.name)
 
-        val response =
-            PostsApi.retrofitService.registerUserWithPhoto(login.toRequestBody("text/plain".toMediaType()),
-                password.toRequestBody("text/plain".toMediaType()),
-                name.toRequestBody("text/plain".toMediaType()),
-                MultipartBody.Part.createFormData("file",
-                    photo.file?.name,
-                    requireNotNull(photo.file?.asRequestBody())))
-        if (response.isSuccessful) {
-            val id = response.body()?.id
-            val token = response.body()?.token
-            if (id != null && token != null) {
-                AppAuth.getInstance().setAuth(id, token)
+        try {
+            val response =
+                PostsApi.retrofitService.registerUserWithPhoto(login.toRequestBody("text/plain".toMediaType()),
+                    password.toRequestBody("text/plain".toMediaType()),
+                    name.toRequestBody("text/plain".toMediaType()),
+                    MultipartBody.Part.createFormData("file",
+                        photo.file?.name,
+                        requireNotNull(photo.file?.asRequestBody())))
+            if (response.isSuccessful) {
+                val id = response.body()?.id
+                val token = response.body()?.token
+                if (id != null && token != null) {
+                    AppAuth.getInstance().setAuth(id, token)
+                }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
