@@ -1,8 +1,12 @@
 package ru.netology.nmedia.fragment
 
 import android.app.Activity
+import android.app.Dialog
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContract
@@ -14,7 +18,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.fragment.FeedFragment.Companion.checkForDraft
 import ru.netology.nmedia.fragment.FeedFragment.Companion.content
@@ -57,15 +64,63 @@ class NewPostFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         checkClickedBtn()
+        if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+            binding.signOut.isVisible = true
+            binding.signOut.setOnClickListener {
+                val dialog = Dialog(requireContext())
+                dialog.apply {
+                    requestWindowFeature(Window.FEATURE_NO_TITLE)
+                    setCancelable(false)
+                    setContentView(R.layout.dialog_with_two_buttons)
+                    dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                    val btnCancel = findViewById<MaterialButton>(R.id.cancel)
+                    val btnYes = findViewById<MaterialButton>(R.id.yes)
+                    btnCancel.setOnClickListener {
+                        dismiss()
+                    }
+                    btnYes.setOnClickListener {
+                        dismiss()
+                        AppAuth.getInstance().removeAuth()
+                        findNavController().navigateUp()
+                    }
+                    show()
+                }
+            }
+        }
         binding.content.requestFocus()
         binding.save.setOnClickListener {
             AndroidUtils.hideKeyboard(requireView())
             if (!binding.content.text.isNullOrEmpty()) {
-                viewModel.changeContentAndSave(binding.content.text.toString(),
-                    binding.videoUrl.text.toString())
-                viewModel.draftContent.value = ""
-                viewModel.draftVideoLink.value = ""
-                findNavController().navigateUp()
+                if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+                    viewModel.changeContentAndSave(binding.content.text.toString(),
+                        binding.videoUrl.text.toString())
+                    viewModel.draftContent.value = ""
+                    viewModel.draftVideoLink.value = ""
+                    findNavController().navigateUp()
+                } else {
+                    val dialog = Dialog(requireContext())
+                    dialog.apply {
+                        requestWindowFeature(Window.FEATURE_NO_TITLE)
+                        setCancelable(false)
+                        setContentView(R.layout.dialog_with_two_buttons)
+                        dialog.window!!.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+                        val btnCancel = findViewById<MaterialButton>(R.id.cancel)
+                        val btnYes = findViewById<MaterialButton>(R.id.yes)
+                        val title = findViewById<TextView>(R.id.dialog_title)
+                        val content = findViewById<TextView>(R.id.dialog_content)
+                        title.text = "Sign In to..."
+                        content.text = "You can't create post because you're not logged in!"
+
+                        btnCancel.setOnClickListener {
+                            dismiss()
+                        }
+                        btnYes.setOnClickListener {
+                            findNavController().navigate(R.id.action_newPostFragment_to_signInFragment)
+                            dismiss()
+                        }
+                        show()
+                    }
+                }
 
             } else {
                 Toast.makeText(requireContext(), "Empty!", Toast.LENGTH_SHORT).show()

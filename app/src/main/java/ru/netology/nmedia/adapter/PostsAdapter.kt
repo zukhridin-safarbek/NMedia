@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
@@ -52,7 +53,6 @@ class PostsAdapter(
             val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
                 postAuthor.text = "${post.author} : ${position}"
-
                 postPublishedDate.text = date.shuffled()[0]
                 postContent.text = post.content
                 likeIcon.text = post.likes.toString()

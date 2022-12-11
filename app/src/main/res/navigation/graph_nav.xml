@@ -31,6 +31,9 @@
         <action
             android:id="@+id/action_newPostFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
+        <action
+            android:id="@+id/action_newPostFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
@@ -54,6 +57,9 @@
         <action
             android:id="@+id/action_editDetailPostFragment_to_detailFragment"
             app:destination="@id/detailFragment" />
+        <action
+            android:id="@+id/action_editDetailPostFragment_to_signInFragment"
+            app:destination="@id/signInFragment" />
     </fragment>
     <fragment
         android:id="@+id/showPhoto"
@@ -72,5 +78,8 @@
         <action
             android:id="@+id/action_signInFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_editDetailPostFragment"
+            app:destination="@id/editDetailPostFragment" />
     </fragment>
 </navigation>
