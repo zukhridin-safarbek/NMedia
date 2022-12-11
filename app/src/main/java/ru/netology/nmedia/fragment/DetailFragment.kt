@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.database.AppAuth
@@ -22,6 +24,7 @@ import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
+import javax.inject.Inject
 
 interface OnInteractionListener {
      fun onLike(post: Post)
@@ -31,13 +34,13 @@ interface OnInteractionListener {
      fun playVideo(post: Post)
      fun menuBtn(post: Post, view: View)
 }
-
+@AndroidEntryPoint
 class DetailFragment : Fragment(), OnInteractionListener {
     private lateinit var binding: FragmentDetailBinding
     private var postId: Long? = null
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    @Inject
+    lateinit var appAuth: AppAuth
+    private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -102,7 +105,7 @@ class DetailFragment : Fragment(), OnInteractionListener {
     }
 
     override fun onLike(post: Post) {
-        if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+        if (appAuth.authStateFlow.value?.id != null) {
             if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
         } else {
             Snackbar.make(requireView(),

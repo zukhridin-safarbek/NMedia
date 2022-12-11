@@ -19,12 +19,15 @@ import java.io.InputStream
 import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.URL
+import javax.inject.Inject
 import kotlin.random.Random
 
 class FCMService : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val gson = Gson()
+    @Inject
+    lateinit var appAuth: AppAuth
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.data[action]?.let {
@@ -43,14 +46,19 @@ class FCMService : FirebaseMessagingService() {
         if (remoteMessage.data.isNotEmpty()) {
             Log.d(action, "Message data payload: ${remoteMessage.data}")
             val data = gson.fromJson(remoteMessage.data[content], NotificationModel::class.java)
-            if (data.recipientId == AppAuth.getInstance().authStateFlow.value?.id) {
-                sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
-            }else if(data.recipientId == 0L){
-                AppAuth.getInstance().sendPushToken()
-            }else if(data.recipientId != 0L && data.recipientId != AppAuth.getInstance().authStateFlow.value?.id){
-                AppAuth.getInstance().sendPushToken()
-            }else if(data.recipientId == null){
-                sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+            when (data.recipientId) {
+                appAuth.authStateFlow.value?.id -> {
+                    sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+                }
+                0L -> {
+                    appAuth.sendPushToken()
+                }
+                appAuth.authStateFlow.value?.id -> {
+                    appAuth.sendPushToken()
+                }
+                null -> {
+                    sendNotification(gson.fromJson(remoteMessage.data[content], Post::class.java))
+                }
             }
         }
     }
@@ -71,7 +79,7 @@ class FCMService : FirebaseMessagingService() {
 
     override fun onNewToken(token: String) {
         println(token)
-        AppAuth.getInstance().sendPushToken(token)
+        appAuth.sendPushToken(token)
     }
 
     private fun handleLike(content: Like) {

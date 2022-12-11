@@ -16,25 +16,30 @@ import ru.netology.nmedia.dto.PostAttachment
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
-import ru.netology.nmedia.service.Api
+import ru.netology.nmedia.service.ApiService
 import java.io.IOException
 import java.lang.Exception
 import java.lang.RuntimeException
+import javax.inject.Inject
 
-class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
+class PostRepositoryImpl @Inject constructor(
+    private val postDao: PostDao,
+    private val retrofitService: ApiService,
+    private val appAuth: AppAuth
+) : PostRepository {
     override val posts: Flow<List<PostEntity>> = postDao.getAll().flowOn(Dispatchers.Default)
 
 
     override suspend fun likeByIdAsync(id: Long) {
         postDao.likedById(id)
-        Api.retrofitService.likeById(id)
+        retrofitService.likeById(id)
         BuildConfig.BASE_URL
     }
 
 
     override suspend fun dislikeByIdAsync(id: Long) {
         postDao.likedById(id)
-        Api.retrofitService.dislikeById(id)
+        retrofitService.dislikeById(id)
     }
 
 
@@ -45,7 +50,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
 
     override suspend fun saveAsync(post: Post) {
         try {
-            Api.retrofitService.save(post)
+            retrofitService.save(post)
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
             println(e.message)
@@ -61,15 +66,15 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             println("before media")
             val media = upload(photo)
             println("after media")
-            Api.retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
+            retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
                 postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
                     description = null,
                     type = PostAttachmentTypeEnum.IMAGE),
-                    authorAvatar = AppAuth.getInstance().authStateFlow.value?.avatar
+                    authorAvatar = appAuth.authStateFlow.value?.avatar
                         ?: "Avatar null", isInServer = true)))
             }
-            println("AppAuth.getInstance().authStateFlow.value?.avatar" + AppAuth.getInstance().authStateFlow.value?.avatar)
+            println("AppAuth.getInstance().authStateFlow.value?.avatar" + appAuth.authStateFlow.value?.avatar)
         } catch (e: IOException) {
             println("IoExceptiopn my")
             postDao.save(post = PostEntity.fromDto(post))
@@ -84,7 +89,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     private suspend fun upload(photo: PhotoModel): Media {
         println("before response")
         println("photo.file?.name: ${photo.file?.name}")
-        val response = Api.retrofitService.upload(MultipartBody.Part.createFormData("file",
+        val response = retrofitService.upload(MultipartBody.Part.createFormData("file",
             photo.file?.name,
             requireNotNull(photo.file?.asRequestBody())))
         println("after response")
@@ -100,14 +105,14 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
     }
 
     override suspend fun deleteAsync(id: Long) {
-        Api.retrofitService.deleteById(id)
+        retrofitService.deleteById(id)
         postDao.removedById(id)
     }
 
 
     override suspend fun getAllFromServerAsync(): List<Post> {
         try {
-            val response = Api.retrofitService.getAllPosts()
+            val response = retrofitService.getAllPosts()
             if (!response.isSuccessful) {
                 throw RuntimeException(response.message())
             }
@@ -132,7 +137,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
             posts.map { postList ->
                 postList.map { postIt ->
                     if (postIt.isInServer == false && post.id == postIt.id) {
-                        Api.retrofitService.save(post.copy(id = 0L))
+                        retrofitService.save(post.copy(id = 0L))
                         postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
                     }
                 }
@@ -150,7 +155,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         while (true) {
             try {
                 delay(10_000L)
-                val response = Api.retrofitService.getNewer(id)
+                val response = retrofitService.getNewer(id)
                 if (!response.isSuccessful) {
                     throw Exception(response.message())
                 }
@@ -169,7 +174,7 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         }
     }.flowOn(Dispatchers.Default)
 
-    suspend fun newer() {
+    override suspend fun newer() {
         postDao.changeNewerShowed()
     }
 }

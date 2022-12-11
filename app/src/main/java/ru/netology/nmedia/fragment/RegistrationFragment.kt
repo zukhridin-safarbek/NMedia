@@ -12,19 +12,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.map
 import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.databinding.FragmentRegistrationBinding
 import ru.netology.nmedia.viewmodel.RegisterUserViewModel
 
+@AndroidEntryPoint
 class RegistrationFragment : Fragment() {
     private lateinit var binding: FragmentRegistrationBinding
-    private val viewModel: RegisterUserViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    private val viewModel: RegisterUserViewModel by activityViewModels()
     private val imageLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             when (it.resultCode) {

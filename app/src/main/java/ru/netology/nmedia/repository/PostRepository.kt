@@ -15,5 +15,6 @@ interface PostRepository {
     suspend fun deleteAsync(id: Long)
     suspend fun getAllFromServerAsync(): List<Post>
     suspend fun reSendPostToServer(post: Post)
+    suspend fun newer()
     fun getNewerCount(id: Long):Flow<Int>
 }

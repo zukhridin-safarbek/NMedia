@@ -7,9 +7,11 @@ import android.view.*
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
@@ -22,17 +24,19 @@ import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.util.CheckNetworkConnection
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
     private var postsList = emptyList<Post>()
+    @Inject
+    lateinit var appAuth: AppAuth
     private lateinit var adapter: PostsAdapter
     private val authViewModel by viewModels<AuthViewModel>()
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+    private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,7 +59,7 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
             }
             binding.signUp.setOnClickListener { findNavController().navigate(R.id.action_feedFragment_to_registrationFragment) }
-            binding.signOut.setOnClickListener { AppAuth.getInstance().removeAuth() }
+            binding.signOut.setOnClickListener { appAuth.removeAuth() }
         }
 
     }
@@ -79,7 +83,7 @@ class FeedFragment : Fragment(), ItemListener {
     private fun controlAdapter() {
         adapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
-                if (AppAuth.getInstance().authStateFlow.value?.id != null) {
+                if (appAuth.authStateFlow.value?.id != null) {
                     if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
                 } else {
                     Snackbar.make(requireView(),

@@ -2,9 +2,13 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -17,9 +21,11 @@ import ru.netology.nmedia.database.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
+import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryImpl
 import java.io.File
 import java.lang.Exception
+import javax.inject.Inject
 
 
 private val empty = Post(
@@ -36,14 +42,17 @@ private val empty = Post(
     ownedByMe = false
 )
 
-
-class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = PostRepositoryImpl(AppDb.getInstance(application).postDao())
+@ExperimentalCoroutinesApi
+@HiltViewModel
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val appAuth: AppAuth
+) : ViewModel() {
     private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
     val serverNoConnection = MutableLiveData<Boolean>()
-    val data: LiveData<FeedModel> = AppAuth.getInstance().authStateFlow.flatMapLatest {
+    val data: LiveData<FeedModel> = appAuth.authStateFlow.flatMapLatest {
         repository.posts.map { posts ->
             FeedModel(posts = posts.map { postEntity ->
                 postEntity.toDto().copy(ownedByMe = postEntity.authorId == it?.id)
@@ -108,8 +117,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value?.let { post ->
             photo.value?.let {
                 repository.saveWithAttachment(post.copy(content = text.toString(),
-                    authorId = AppAuth.getInstance().authStateFlow.value?.id ?: 0L,
-                    authorAvatar = AppAuth.getInstance().authStateFlow.value?.avatar
+                    authorId = appAuth.authStateFlow.value?.id ?: 0L,
+                    authorAvatar = appAuth.authStateFlow.value?.avatar
                         ?: "avatar is null"), it)
                 savePhoto(null, null)
             } ?: repository.saveAsync(post.copy(content = text.toString()))

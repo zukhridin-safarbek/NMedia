@@ -8,24 +8,10 @@ import androidx.room.RoomDatabase
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.`object`.PostColumns
 import ru.netology.nmedia.entity.PostEntity
+import javax.inject.Singleton
+
+@Singleton
 @Database(entities = [PostEntity::class], version = 1)
 abstract class AppDb : RoomDatabase() {
     abstract fun postDao(): PostDao
-
-    companion object {
-        @Volatile
-        private var instance: AppDb? = null
-
-        fun getInstance(context: Context): AppDb {
-            return instance ?: synchronized(this) {
-                instance ?: buildDatabase(context).also { instance = it }
-            }
-        }
-
-        private fun buildDatabase(context: Context) =
-            Room.databaseBuilder(
-                context, AppDb::class.java, PostColumns.DATABASE_NAME
-            )
-                .build()
-    }
 }
