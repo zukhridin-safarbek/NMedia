@@ -19,4 +19,10 @@
     <string name="clear_photo">clear photo</string>
     <string name="save">Save</string>
     <string name="back">back</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="sign_out">Sign out</string>
+    <string name="login">login</string>
+    <string name="password">password</string>
+    <string name="error">error</string>
 </resources>

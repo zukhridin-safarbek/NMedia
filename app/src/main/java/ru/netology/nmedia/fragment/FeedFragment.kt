@@ -3,10 +3,10 @@ package ru.netology.nmedia.fragment
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -18,10 +18,12 @@ import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
 import ru.netology.nmedia.util.CheckNetworkConnection
+import ru.netology.nmedia.viewmodel.AuthViewModel
 
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
@@ -29,6 +31,7 @@ class FeedFragment : Fragment(), ItemListener {
     private lateinit var bundle: Bundle
     private var postsList = emptyList<Post>()
     private lateinit var adapter: PostsAdapter
+    private val authViewModel by viewModels<AuthViewModel>()
     private val viewModel: PostViewModel by viewModels(
         ownerProducer = ::requireParentFragment
     )
@@ -46,6 +49,17 @@ class FeedFragment : Fragment(), ItemListener {
         super.onViewCreated(view, savedInstanceState)
         postControl()
         checkAndSetDraftSettings()
+        authViewModel.authState.observe(viewLifecycleOwner) { state ->
+            binding.unauthenticated.isVisible = !authViewModel.authenticated
+            binding.signOut.isVisible = authViewModel.authenticated
+
+            binding.signIn.setOnClickListener {
+                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+            }
+            binding.signUp.setOnClickListener { AppAuth.getInstance().setAuth(5L, "x-token") }
+            binding.signOut.setOnClickListener { AppAuth.getInstance().removeAuth() }
+        }
+
     }
 
     private fun checkAndSetDraftSettings() {

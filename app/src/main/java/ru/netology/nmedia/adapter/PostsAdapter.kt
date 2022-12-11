@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -59,9 +60,10 @@ class PostsAdapter(
                 likeIcon.isChecked = post.likedByMe
                 viewIcon.text = (12434).toString()
                 getAvatarFromServer("${post.authorAvatar}", postAvatar)
-
+                postMenuBtn.isVisible = post.ownedByMe
 
                 if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+                    groupContentImageAndSeparator.visibility = View.VISIBLE
                     getContentImageFromServer(post.attachment.component1(),
                         postContentImage)
                     postContentImage.setOnClickListener {

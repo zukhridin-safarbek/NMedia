@@ -6,9 +6,11 @@ import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.database.AppDb
@@ -23,32 +25,40 @@ import java.lang.Exception
 private val empty = Post(
     id = 0,
     author = "",
+    authorId = 0L,
     content = "",
     publishedDate = "now",
     likedByMe = false,
     likes = 0,
     shares = 0,
-    videoLink = null
+    videoLink = null,
+    ownedByMe = false
 )
 
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    private val serverRepository = PostRepositoryImpl(AppDb.getInstance(application).postDao())
+    private val repository = PostRepositoryImpl(AppDb.getInstance(application).postDao())
     private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
     val serverNoConnection = MutableLiveData<Boolean>()
-    val data: LiveData<FeedModel> =
-        serverRepository.posts.map { FeedModel(it.map(PostEntity::toDto), it.isEmpty()) }
+    val data: LiveData<FeedModel> = AppAuth.getInstance().authStateFlow.flatMapLatest {
+        repository.posts.map { posts ->
+            FeedModel(posts = posts.map { postEntity ->
+                postEntity.toDto().copy(ownedByMe = postEntity.authorId == it?.id)
+
+            }, posts.isEmpty())
+        }
             .catch { e -> e.printStackTrace() }
-            .asLiveData(Dispatchers.Default)
+    }.asLiveData(Dispatchers.Default)
+
     private val _state = MutableLiveData<FeedModelState>()
     val state: LiveData<FeedModelState>
         get() = _state
     private val edited = MutableLiveData(empty)
     val newerCount: LiveData<Int> = data.switchMap {
-        serverRepository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
-            .asLiveData(Dispatchers.Default)
+        repository.getNewerCount(it.posts.firstOrNull()?.id ?: 0L)
+            .asLiveData(Dispatchers.Default, 1000L)
     }
     private val _photo = MutableLiveData<PhotoModel?>(null)
     val photo: LiveData<PhotoModel?>
@@ -65,7 +75,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun reSend(post: Post) = viewModelScope.launch {
         println("top resend viewModel")
-        serverRepository.reSendPostToServer(post)
+        repository.reSendPostToServer(post)
         println("bottom resend viewModel")
     }
 
@@ -73,8 +83,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private fun getData() = viewModelScope.launch {
         _state.value = FeedModelState.Loading
         try {
-            serverRepository.getAllFromServerAsync()
-            listPosts = serverRepository.getAllFromServerAsync()
+            repository.getAllFromServerAsync()
+            listPosts = repository.getAllFromServerAsync()
             _state.value = FeedModelState.Idle
         } catch (e: Exception) {
             _state.value = FeedModelState.Error
@@ -84,7 +94,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun refresh() = viewModelScope.launch {
         _state.value = FeedModelState.Refreshing
         try {
-            serverRepository.getAllFromServerAsync()
+            repository.getAllFromServerAsync()
             _state.value = FeedModelState.Idle
         } catch (e: Exception) {
             _state.value = FeedModelState.Error
@@ -96,18 +106,17 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val urlText = url?.trim()
         edited.value?.let { post ->
             photo.value?.let {
-                serverRepository.saveWithAttachment(post.copy(content = text.toString()), it)
+                repository.saveWithAttachment(post.copy(content = text.toString()), it)
                 savePhoto(null, null)
-            }
-                ?: serverRepository.saveAsync(post.copy(content = text.toString(),
-                    author = urlText ?: "netologyMe"))
+            } ?: repository.saveAsync(post.copy(content = text.toString(),
+                author = urlText ?: "netologyMe"))
         }
         edited.postValue(empty)
     }
 
     fun likeById(id: Long) = viewModelScope.launch {
         try {
-            serverRepository.likeByIdAsync(id)
+            repository.likeByIdAsync(id)
         } catch (e: Exception) {
             _state.value = FeedModelState.Error
         }
@@ -115,7 +124,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dislikeById(id: Long) = viewModelScope.launch {
         try {
-            serverRepository.dislikeByIdAsync(id)
+            repository.dislikeByIdAsync(id)
         } catch (e: Exception) {
             _state.value = FeedModelState.Error
         }
@@ -128,7 +137,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun removeById(id: Long) = viewModelScope.launch {
         try {
-            serverRepository.deleteAsync(id)
+            repository.deleteAsync(id)
         } catch (e: Exception) {
             _state.value = FeedModelState.Error
         }
@@ -140,7 +149,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun newer() = viewModelScope.launch {
-        serverRepository.newer()
+        repository.newer()
     }
 
 }
