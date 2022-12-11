@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,14 +53,14 @@ class PostsAdapter(
         fun bind(post: Post, listener: ItemListener) {
             val date = listOf("вчера в 14:29", "вчера в 8:53", "сегодня в 00:35")
             binding.apply {
-                postAuthor.text = "${post.author} : ${position}"
+                postAuthor.text = "${post.author} : ${post.authorAvatar}"
                 postPublishedDate.text = date.shuffled()[0]
                 postContent.text = post.content
                 likeIcon.text = post.likes.toString()
                 shareIcon.text = post.shares.toString()
                 likeIcon.isChecked = post.likedByMe
                 viewIcon.text = (12434).toString()
-                getAvatarFromServer("${post.authorAvatar}", postAvatar)
+                getAvatar("${post.authorAvatar}", postAvatar)
                 postMenuBtn.isVisible = post.ownedByMe
 
                 if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
@@ -132,7 +133,8 @@ class PostDiffCallback : DiffUtil.ItemCallback<Post>() {
 
 }
 
-fun getAvatarFromServer(name: String, view: ImageView) {
+fun getAvatar(name: String, view: ImageView) {
+    println("name $name")
     val images = listOf<String>("https://webstockreview.net/images/human-clipart-old-boy-8.png",
         "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Icons8_flat_businesswoman.svg/1200px-Icons8_flat_businesswoman.svg.png",
         "https://get.pxhere.com/photo/avatar-people-person-business-user-man-character-set-icon-portrait-office-profile-pictograph-social-adult-suit-technology-individual-head-face-design-concept-emblem-symbol-smile-formal-elements-facial-expression-cartoon-male-forehead-cheek-chin-human-behavior-standing-gentleman-businessperson-mouth-clip-art-communication-conversation-public-speaking-finger-illustration-facial-hair-happiness-organization-graphics-1447663.jpg")
@@ -141,6 +143,13 @@ fun getAvatarFromServer(name: String, view: ImageView) {
         Glide.with(view)
             .load(name)
             .timeout(10000)
+            .fitCenter()
+            .circleCrop()
+            .error(images.shuffled()[0])
+            .into(view)
+    } else if ("file" in name && name[0] == ('f') && name != "") {
+        Glide.with(view)
+            .load(Uri.parse(name))
             .fitCenter()
             .circleCrop()
             .error(images.shuffled()[0])

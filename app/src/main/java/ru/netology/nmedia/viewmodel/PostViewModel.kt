@@ -25,6 +25,7 @@ import java.lang.Exception
 private val empty = Post(
     id = 0,
     author = "",
+    authorAvatar = "",
     authorId = 0L,
     content = "",
     publishedDate = "now",
@@ -106,10 +107,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         val urlText = url?.trim()
         edited.value?.let { post ->
             photo.value?.let {
-                repository.saveWithAttachment(post.copy(content = text.toString()), it)
+                repository.saveWithAttachment(post.copy(content = text.toString(),
+                    authorId = AppAuth.getInstance().authStateFlow.value?.id ?: 0L,
+                    authorAvatar = AppAuth.getInstance().authStateFlow.value?.avatar
+                        ?: "avatar is null"), it)
                 savePhoto(null, null)
-            } ?: repository.saveAsync(post.copy(content = text.toString(),
-                author = urlText ?: "netologyMe"))
+            } ?: repository.saveAsync(post.copy(content = text.toString()))
         }
         edited.postValue(empty)
     }

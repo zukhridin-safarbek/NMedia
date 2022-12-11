@@ -15,4 +15,15 @@
     <string name="notification_user_liked" translatable="false">%1$s поставил лайк посту %2$s</string>
     <string name="error_404">Ошибка 404, неправильный запрос или пост не найден!</string>
     <string name="go_up_newer">New posts</string>
+    <string name="clear_photo">Очистить картинку</string>
+    <string name="save">Сохранить</string>
+    <string name="back">Назад</string>
+    <string name="sign_in">Войти</string>
+    <string name="sign_up">Регистрация</string>
+    <string name="error">Ошибка</string>
+    <string name="name">Имя</string>
+    <string name="sign_out">Выйти</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтверждение пароля</string>
 </resources>

@@ -67,7 +67,7 @@ class DetailFragment : Fragment(), OnInteractionListener {
                         shareIcon.text = post.shares.toString()
                         likeIcon.isChecked = post.likedByMe
                         viewIcon.text = (12434).toString()
-                        ru.netology.nmedia.adapter.getAvatarFromServer("${post.authorAvatar}",
+                        ru.netology.nmedia.adapter.getAvatar("${post.authorAvatar}",
                             postAvatar)
                         if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
                             ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),

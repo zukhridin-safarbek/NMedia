@@ -5,8 +5,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
-import androidx.activity.viewModels
-import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -49,21 +47,17 @@ class FeedFragment : Fragment(), ItemListener {
         super.onViewCreated(view, savedInstanceState)
         postControl()
         checkAndSetDraftSettings()
-        authViewModel.authState.observe(viewLifecycleOwner) { state ->
+        authViewModel.authState.observe(viewLifecycleOwner) { _ ->
             binding.unauthenticated.isVisible = !authViewModel.authenticated
             binding.signOut.isVisible = authViewModel.authenticated
 
-            signIn()
-            binding.signUp.setOnClickListener { AppAuth.getInstance().setAuth(5L, "x-token") }
+            binding.signIn.setOnClickListener {
+                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+            }
+            binding.signUp.setOnClickListener { findNavController().navigate(R.id.action_feedFragment_to_registrationFragment) }
             binding.signOut.setOnClickListener { AppAuth.getInstance().removeAuth() }
         }
 
-    }
-
-    private fun signIn() {
-        binding.signIn.setOnClickListener {
-            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-        }
     }
 
     private fun checkAndSetDraftSettings() {
