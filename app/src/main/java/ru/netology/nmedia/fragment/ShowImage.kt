@@ -39,8 +39,6 @@ class ShowImage : Fragment() {
                 }
             }
         }
-
-        println(requireActivity().actionBar)
         binding.back.setOnClickListener {
             findNavController().navigateUp()
         }

@@ -34,8 +34,6 @@ class RegistrationFragment : Fragment() {
                 }
                 Activity.RESULT_OK -> {
                     val uri = it.data?.data
-                    println(uri)
-                    println(uri?.toFile())
                     viewModel.savePhoto(uri, uri?.toFile())
                 }
             }

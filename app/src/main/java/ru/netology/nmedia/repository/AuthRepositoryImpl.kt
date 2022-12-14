@@ -68,7 +68,6 @@ class AuthRepositoryImpl @Inject constructor(
         name: String,
         photo: PhotoModel,
     ) {
-        println("photo.file?.name" + photo.file?.name)
 
         try {
             val response =

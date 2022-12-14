@@ -1,30 +1,22 @@
 package ru.netology.nmedia.viewmodel
 
 
-import android.app.Application
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.database.AppAuth
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
-import ru.netology.nmedia.database.AppDb
-import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryImpl
 import java.io.File
-import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -46,7 +38,7 @@ private val empty = Post(
 @HiltViewModel
 class PostViewModel @Inject constructor(
     private val repository: PostRepository,
-    private val appAuth: AppAuth
+    private val appAuth: AppAuth,
 ) : ViewModel() {
     private var listPosts = emptyList<Post>()
     val draftContent = MutableLiveData<String>()
@@ -84,9 +76,7 @@ class PostViewModel @Inject constructor(
     }
 
     fun reSend(post: Post) = viewModelScope.launch {
-        println("top resend viewModel")
         repository.reSendPostToServer(post)
-        println("bottom resend viewModel")
     }
 
 
@@ -112,16 +102,23 @@ class PostViewModel @Inject constructor(
     }
 
     fun changeContentAndSave(content: String?, url: String?) = viewModelScope.launch {
-        val text = content?.trim()
-        val urlText = url?.trim()
         edited.value?.let { post ->
+
             photo.value?.let {
-                repository.saveWithAttachment(post.copy(content = text.toString(),
-                    authorId = appAuth.authStateFlow.value?.id ?: 0L,
-                    authorAvatar = appAuth.authStateFlow.value?.avatar
-                        ?: "avatar is null"), it)
-                savePhoto(null, null)
-            } ?: repository.saveAsync(post.copy(content = text.toString()))
+                println("File ${it.file} : Uri ${it.uri}")
+                if (it.uri != null || it.file != null) {
+                    repository.saveWithAttachment(post.copy(author = url.toString(), content = content?.trim().toString(),
+                        authorId = appAuth.authStateFlow.value?.id ?: 0L,
+                        authorAvatar = appAuth.authStateFlow.value?.avatar
+                            ?: "avatar is null"), it)
+                    savePhoto(null, null)
+                } else {
+                    repository.saveAsync(post.copy(author = url.toString(),authorId = appAuth.authStateFlow.value?.id ?: 0L,
+                        authorAvatar = appAuth.authStateFlow.value?.avatar, content = content?.trim().toString()))
+                }
+
+            } ?: repository.saveAsync(post.copy(author = url.toString(),authorId = appAuth.authStateFlow.value?.id ?: 0L,
+                authorAvatar = appAuth.authStateFlow.value?.avatar, content = content?.trim().toString()))
         }
         edited.postValue(empty)
     }
@@ -144,7 +141,7 @@ class PostViewModel @Inject constructor(
 
 
     fun shareByID(id: Long) {
-        TODO()
+        println(id)
     }
 
     fun removeById(id: Long) = viewModelScope.launch {

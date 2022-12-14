@@ -25,7 +25,7 @@ import javax.inject.Inject
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
     private val retrofitService: ApiService,
-    private val appAuth: AppAuth
+    private val appAuth: AppAuth,
 ) : PostRepository {
     override val posts: Flow<List<PostEntity>> = postDao.getAll().flowOn(Dispatchers.Default)
 
@@ -50,10 +50,13 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun saveAsync(post: Post) {
         try {
-            retrofitService.save(post)
+            retrofitService.save(post).also {
+                if (it.isSuccessful) {
+                    postDao.save(PostEntity.fromDto(post.copy(isInServer = true)))
+                }
+            }
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
-            println(e.message)
         } catch (e: Exception) {
             throw UnknownError(e.message)
         }
@@ -63,9 +66,9 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun saveWithAttachment(post: Post, photo: PhotoModel) {
         try {
-            println("before media")
+
             val media = upload(photo)
-            println("after media")
+
             retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
                 postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
@@ -74,27 +77,21 @@ class PostRepositoryImpl @Inject constructor(
                     authorAvatar = appAuth.authStateFlow.value?.avatar
                         ?: "Avatar null", isInServer = true)))
             }
-            println("AppAuth.getInstance().authStateFlow.value?.avatar" + appAuth.authStateFlow.value?.avatar)
         } catch (e: IOException) {
-            println("IoExceptiopn my")
+
             postDao.save(post = PostEntity.fromDto(post))
-            println(e.message)
+
         } catch (e: Exception) {
-            println(e.message)
+
             e.printStackTrace()
 
         }
     }
 
     private suspend fun upload(photo: PhotoModel): Media {
-        println("before response")
-        println("photo.file?.name: ${photo.file?.name}")
         val response = retrofitService.upload(MultipartBody.Part.createFormData("file",
             photo.file?.name,
             requireNotNull(photo.file?.asRequestBody())))
-        println("after response")
-        println(photo.file?.asRequestBody())
-        println("res " + response.isSuccessful)
         if (!response.isSuccessful) {
             println("response is no success")
             println(response.message())
@@ -131,9 +128,9 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun reSendPostToServer(post: Post) {
-        println("before resend")
+
         try {
-            println("save")
+
             posts.map { postList ->
                 postList.map { postIt ->
                     if (postIt.isInServer == false && post.id == postIt.id) {
@@ -147,7 +144,7 @@ class PostRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             throw UnknownError(e.message)
         }
-        println("after resend")
+
 
     }
 

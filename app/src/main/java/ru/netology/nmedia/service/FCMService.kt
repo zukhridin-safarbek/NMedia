@@ -22,12 +22,10 @@ import java.net.URL
 import javax.inject.Inject
 import kotlin.random.Random
 
-class FCMService : FirebaseMessagingService() {
+class FCMService @Inject constructor(private val appAuth: AppAuth) : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val gson = Gson()
-    @Inject
-    lateinit var appAuth: AppAuth
 
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.data[action]?.let {
@@ -78,7 +76,6 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        println(token)
         appAuth.sendPushToken(token)
     }
 
