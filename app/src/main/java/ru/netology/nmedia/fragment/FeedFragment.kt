@@ -9,9 +9,14 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
+import androidx.paging.flatMap
+import androidx.paging.map
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
@@ -31,7 +36,8 @@ class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
-    private var postsList = emptyList<Post>()
+    private var postsList = mutableListOf<Post>()
+
     @Inject
     lateinit var appAuth: AppAuth
     private lateinit var adapter: PostsAdapter
@@ -59,7 +65,10 @@ class FeedFragment : Fragment(), ItemListener {
                 findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
             }
             binding.signUp.setOnClickListener { findNavController().navigate(R.id.action_feedFragment_to_registrationFragment) }
-            binding.signOut.setOnClickListener { appAuth.removeAuth() }
+            binding.signOut.setOnClickListener {
+                viewModel.refresh()
+                appAuth.removeAuth()
+            }
         }
 
     }
@@ -135,9 +144,17 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun controlSwipeRefreshLayout() {
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest {
+                binding.swipeRefreshLayout
+                    .isRefreshing = it.refresh is LoadState.Loading
+                        || it.append is LoadState.Loading
+                        || it.prepend is LoadState.Loading
+            }
+        }
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.refresh()
-
+            binding.goUpNewer.callOnClick()
         }
     }
 
@@ -151,29 +168,35 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun newerPosts() {
-        viewModel.newerCount.observe(viewLifecycleOwner) { newerCount ->
-            if (newerCount > 0) {
-                binding.goUpNewer.visibility = View.VISIBLE
-                binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
-                binding.goUpNewer.setOnClickListener {
-                    viewModel.newer()
-                    binding.list.smoothScrollToPosition(0)
+        lifecycleScope.launchWhenCreated {
+            viewModel.newerCount.collectLatest { newerCount ->
+                if (newerCount > 0) {
+                    binding.goUpNewer.visibility = View.VISIBLE
+                    binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
+                    binding.goUpNewer.setOnClickListener {
+                        viewModel.newer()
+                        adapter.refresh()
+                        binding.list.smoothScrollToPosition(0)
+                        binding.goUpNewer.visibility = View.GONE
+                    }
+                } else {
                     binding.goUpNewer.visibility = View.GONE
-                    newerCount - newerCount
                 }
-            } else {
-                binding.goUpNewer.visibility = View.GONE
             }
         }
     }
 
     private fun postLoadOnCreate() {
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            postsList = state.posts
-            adapter.submitList(postsList)
-            if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
-                binding.addOrEditBtn.visibility = View.VISIBLE
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest {
+                it.map { post ->
+                    postsList.add(post)
+                }
+                adapter.submitData(it)
+                if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
+                    binding.addOrEditBtn.visibility = View.VISIBLE
+                }
             }
         }
         viewModel.state.observe(viewLifecycleOwner) { state ->

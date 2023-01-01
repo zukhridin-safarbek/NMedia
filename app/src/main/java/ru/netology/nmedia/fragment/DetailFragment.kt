@@ -11,10 +11,13 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.map
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.database.AppAuth
@@ -27,17 +30,19 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 import javax.inject.Inject
 
 interface OnInteractionListener {
-     fun onLike(post: Post)
-     fun onShare(post: Post)
-     fun onEdit(post: Post)
-     fun onRemove(post: Post)
-     fun playVideo(post: Post)
-     fun menuBtn(post: Post, view: View)
+    fun onLike(post: Post)
+    fun onShare(post: Post)
+    fun onEdit(post: Post)
+    fun onRemove(post: Post)
+    fun playVideo(post: Post)
+    fun menuBtn(post: Post, view: View)
 }
+
 @AndroidEntryPoint
 class DetailFragment : Fragment(), OnInteractionListener {
     private lateinit var binding: FragmentDetailBinding
     private var postId: Long? = null
+
     @Inject
     lateinit var appAuth: AppAuth
     private val viewModel: PostViewModel by activityViewModels()
@@ -59,47 +64,50 @@ class DetailFragment : Fragment(), OnInteractionListener {
         arguments?.detailIdPostEdit?.let {
             postId = it.toLong()
         }
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            state.posts.map { post ->
-                if (postId == post.id) {
-                    with(binding) {
-                        postAuthor.text = post.author
-                        postPublishedDate.text = post.publishedDate
-                        postContent.text = post.content
-                        likeIcon.text = post.likes.toString()
-                        shareIcon.text = post.shares.toString()
-                        likeIcon.isChecked = post.likedByMe
-                        viewIcon.text = (12434).toString()
-                        ru.netology.nmedia.adapter.getAvatar("${post.authorAvatar}",
-                            postAvatar)
-                        if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
-                            ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),
-                                postContentImage)
-                        } else {
-                            groupContentImageAndSeparator.visibility = View.GONE
-                        }
-                        if (!post.videoLink.isNullOrBlank()) {
-                            playBtn.visibility = View.VISIBLE
-                            playBtn.setOnClickListener {
-                                playVideo(post)
-                            }
-                        } else {
-                            playBtn.visibility = View.GONE
-                        }
 
-                        likeIcon.setOnClickListener {
-                            onLike(post)
-                        }
-                        shareIcon.setOnClickListener {
-                            onShare(post)
-                        }
-                        postMenuBtn.setOnClickListener {
-                            menuBtn(post, it)
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest { posts ->
+                posts.map { post ->
+                    if (postId == post.id) {
+                        with(binding) {
+                            postAuthor.text = post.author
+                            postPublishedDate.text = post.publishedDate
+                            postContent.text = post.content
+                            likeIcon.text = post.likes.toString()
+                            shareIcon.text = post.shares.toString()
+                            likeIcon.isChecked = post.likedByMe
+                            viewIcon.text = (12434).toString()
+                            ru.netology.nmedia.adapter.getAvatar("${post.authorAvatar}",
+                                postAvatar)
+                            if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+                                ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),
+                                    postContentImage)
+                            } else {
+                                groupContentImageAndSeparator.visibility = View.GONE
+                            }
+                            if (!post.videoLink.isNullOrBlank()) {
+                                playBtn.visibility = View.VISIBLE
+                                playBtn.setOnClickListener {
+                                    playVideo(post)
+                                }
+                            } else {
+                                playBtn.visibility = View.GONE
+                            }
+
+                            likeIcon.setOnClickListener {
+                                onLike(post)
+                            }
+                            shareIcon.setOnClickListener {
+                                onShare(post)
+                            }
+                            postMenuBtn.setOnClickListener {
+                                menuBtn(post, it)
+                            }
                         }
                     }
                 }
-            }
 
+            }
         }
 
     }

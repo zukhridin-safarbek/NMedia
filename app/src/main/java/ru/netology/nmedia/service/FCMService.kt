@@ -22,7 +22,7 @@ import java.net.URL
 import javax.inject.Inject
 import kotlin.random.Random
 
-class FCMService @Inject constructor(private val appAuth: AppAuth) : FirebaseMessagingService() {
+class FCMService @Inject constructor( private val appAuth: AppAuth) : FirebaseMessagingService() {
     private val action = "action"
     private val content = "content"
     private val gson = Gson()

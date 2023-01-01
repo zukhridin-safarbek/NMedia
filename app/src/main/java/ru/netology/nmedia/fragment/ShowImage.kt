@@ -6,8 +6,11 @@ import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.map
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.adapter.getContentImageFromServer
 import ru.netology.nmedia.databinding.FragmentShowPhotoBinding
 import ru.netology.nmedia.dto.Post
@@ -31,14 +34,17 @@ class ShowImage : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.data.observe(viewLifecycleOwner) { feed ->
-            feed.posts.map { post ->
-                if (arguments?.postId?.toLong() == post.id) {
-                    getContentImageFromServer(post.attachment?.url.toString(), binding.image)
-                    binding.showLikes.text = post.likes.toString()
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest { posts ->
+                posts.map { post ->
+                    if (arguments?.postId?.toLong() == post.id) {
+                        getContentImageFromServer(post.attachment?.url.toString(), binding.image)
+                        binding.showLikes.text = post.likes.toString()
+                    }
                 }
             }
         }
+
         binding.back.setOnClickListener {
             findNavController().navigateUp()
         }

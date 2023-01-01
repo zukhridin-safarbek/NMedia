@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
+import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -30,7 +31,7 @@ interface OnInteractionListener {
 class PostsAdapter(
     private val onInteractionListener: OnInteractionListener,
     private val listener: ItemListener,
-) : ListAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
+) : PagingDataAdapter<Post, PostsAdapter.PostViewHolder>(PostDiffCallback()) {
     class PostViewHolder(
         private val binding: CardPostLayoutBinding,
         private val onInteractionListener: OnInteractionListener,
@@ -115,7 +116,7 @@ class PostsAdapter(
 
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = getItem(position)
+        val post = getItem(position) ?: return
         holder.bind(post, listener)
     }
 

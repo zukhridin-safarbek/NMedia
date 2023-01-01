@@ -1,12 +1,14 @@
 package ru.netology.nmedia.repository
 
+import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
 
 interface PostRepository {
-    val posts: Flow<List<PostEntity>>
+    val data: Flow<PagingData<PostEntity>>
+    suspend fun dataForNewer(): List<Post>
     suspend fun likeByIdAsync(id: Long)
     suspend fun dislikeByIdAsync(id: Long)
     suspend fun shareById(id: Long)

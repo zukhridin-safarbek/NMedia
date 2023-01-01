@@ -1,6 +1,9 @@
 package ru.netology.nmedia.repository
 
 import android.accounts.NetworkErrorException
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.map
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -27,7 +30,16 @@ class PostRepositoryImpl @Inject constructor(
     private val retrofitService: ApiService,
     private val appAuth: AppAuth,
 ) : PostRepository {
-    override val posts: Flow<List<PostEntity>> = postDao.getAll().flowOn(Dispatchers.Default)
+    override val data = Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+        pagingSourceFactory = {
+            PostPagingSource(retrofitService)
+        }
+    ).flow.map {
+        it.map(PostEntity::fromDto)
+    }
+
+    override suspend fun dataForNewer(): List<Post> =
+        retrofitService.getAllPosts().body().orEmpty()
 
 
     override suspend fun likeByIdAsync(id: Long) {
@@ -50,11 +62,7 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun saveAsync(post: Post) {
         try {
-            retrofitService.save(post).also {
-                if (it.isSuccessful) {
-                    postDao.save(PostEntity.fromDto(post.copy(isInServer = true)))
-                }
-            }
+            retrofitService.save(post)
         } catch (e: IOException) {
             postDao.save(post = PostEntity.fromDto(post))
         } catch (e: Exception) {
@@ -66,9 +74,7 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun saveWithAttachment(post: Post, photo: PhotoModel) {
         try {
-
             val media = upload(photo)
-
             retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
                 postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
@@ -78,11 +84,8 @@ class PostRepositoryImpl @Inject constructor(
                         ?: "Avatar null", isInServer = true)))
             }
         } catch (e: IOException) {
-
             postDao.save(post = PostEntity.fromDto(post))
-
         } catch (e: Exception) {
-
             e.printStackTrace()
 
         }
@@ -93,8 +96,6 @@ class PostRepositoryImpl @Inject constructor(
             photo.file?.name,
             requireNotNull(photo.file?.asRequestBody())))
         if (!response.isSuccessful) {
-            println("response is no success")
-            println(response.message())
         }
         return requireNotNull(response.body())
 
@@ -128,10 +129,8 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun reSendPostToServer(post: Post) {
-
         try {
-
-            posts.map { postList ->
+            data.map { postList ->
                 postList.map { postIt ->
                     if (postIt.isInServer == false && post.id == postIt.id) {
                         retrofitService.save(post.copy(id = 0L))
@@ -140,11 +139,10 @@ class PostRepositoryImpl @Inject constructor(
                 }
             }.collect()
         } catch (e: IOException) {
-            println(e.message)
+            throw IOException(e.message)
         } catch (e: Exception) {
             throw UnknownError(e.message)
         }
-
 
     }
 
@@ -164,7 +162,6 @@ class PostRepositoryImpl @Inject constructor(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: IOException) {
-                println(e.message)
             } catch (e: Exception) {
                 throw UnknownError(e.message)
             }

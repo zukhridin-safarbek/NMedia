@@ -5,23 +5,14 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.MenuProvider
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
-import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.model.channelId
-import ru.netology.nmedia.databinding.FragmentFeedBinding
-import ru.netology.nmedia.viewmodel.AuthViewModel
-import ru.netology.nmedia.viewmodel.PostViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -54,16 +45,14 @@ class AppActivity (
     ){
         firebaseMessaging.token.addOnCompleteListener { task->
             if (!task.isSuccessful){
-                println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
             }
             val token = task.result
-            println(token)
         }
     }
 
 
-    private fun checkGoogleApiAvailability() = with(googleApiAvailability) {
+    private fun checkGoogleApiAvailability() = with(GoogleApiAvailability.getInstance()) {
         val code = isGooglePlayServicesAvailable(this@AppActivity)
         if (code == ConnectionResult.SUCCESS) {
             return@with
