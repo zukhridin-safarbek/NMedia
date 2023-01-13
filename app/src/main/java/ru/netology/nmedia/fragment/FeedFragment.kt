@@ -3,45 +3,50 @@ package ru.netology.nmedia.fragment
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
-import androidx.paging.flatMap
-import androidx.paging.map
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import ru.netology.nmedia.model.FeedModelState
+import okhttp3.internal.wait
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.adapter.OnInteractionListener
-import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.adapter.PostsLoaderStateAdapter
 import ru.netology.nmedia.database.AppAuth
-import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.databinding.CardPostLayoutBinding
+import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.util.CheckNetworkConnection
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import ru.netology.nmedia.viewmodel.PostViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@OptIn(ExperimentalCoroutinesApi::class)
 class FeedFragment : Fragment(), ItemListener {
     private lateinit var binding: FragmentFeedBinding
     private lateinit var bindingCardPost: CardPostLayoutBinding
     private lateinit var bundle: Bundle
-    private var postsList = mutableListOf<Post>()
 
     @Inject
     lateinit var appAuth: AppAuth
-    private lateinit var adapter: PostsAdapter
+    private lateinit var postsAdapter: PostsAdapter
     private val authViewModel by viewModels<AuthViewModel>()
+
     private val viewModel: PostViewModel by activityViewModels()
 
     override fun onCreateView(
@@ -57,16 +62,15 @@ class FeedFragment : Fragment(), ItemListener {
         super.onViewCreated(view, savedInstanceState)
         postControl()
         checkAndSetDraftSettings()
-        authViewModel.authState.observe(viewLifecycleOwner) { _ ->
+        authViewModel.authState.observe(viewLifecycleOwner) {
             binding.unauthenticated.isVisible = !authViewModel.authenticated
             binding.signOut.isVisible = authViewModel.authenticated
-
             binding.signIn.setOnClickListener {
                 findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
             }
             binding.signUp.setOnClickListener { findNavController().navigate(R.id.action_feedFragment_to_registrationFragment) }
             binding.signOut.setOnClickListener {
-                viewModel.refresh()
+                postsAdapter.refresh()
                 appAuth.removeAuth()
             }
         }
@@ -90,7 +94,7 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun controlAdapter() {
-        adapter = PostsAdapter(object : OnInteractionListener {
+        postsAdapter = PostsAdapter(object : OnInteractionListener {
             override fun onLike(post: Post) {
                 if (appAuth.authStateFlow.value?.id != null) {
                     if (post.likedByMe) viewModel.dislikeById(post.id) else viewModel.likeById(post.id)
@@ -98,10 +102,10 @@ class FeedFragment : Fragment(), ItemListener {
                     Snackbar.make(requireView(),
                         "You can't like because you're not logged in!",
                         Snackbar.LENGTH_SHORT).apply {
-                        setAction(getString(R.string.sign_in),
-                            View.OnClickListener {
-                                findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
-                            })
+                        setAction(getString(R.string.sign_in)
+                        ) {
+                            findNavController().navigate(R.id.action_feedFragment_to_signInFragment)
+                        }
                         show()
                     }
                 }
@@ -145,17 +149,21 @@ class FeedFragment : Fragment(), ItemListener {
 
     private fun controlSwipeRefreshLayout() {
         lifecycleScope.launchWhenCreated {
-            adapter.loadStateFlow.collectLatest {
-                binding.swipeRefreshLayout
-                    .isRefreshing = it.refresh is LoadState.Loading
-                        || it.append is LoadState.Loading
-                        || it.prepend is LoadState.Loading
+            postsAdapter.loadStateFlow.collectLatest { state ->
+                state.refresh is LoadState.Loading || state.append is LoadState.Loading || state.prepend is LoadState.Loading
             }
         }
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.refresh()
-            binding.goUpNewer.callOnClick()
+            postsAdapter.refresh()
+            lifecycleScope.launchWhenCreated {
+                postsAdapter.loadStateFlow.collectLatest { state ->
+                    binding.swipeRefreshLayout.isRefreshing = state.refresh is LoadState.Loading
+                }
+            }
+
         }
+
+
     }
 
     private fun openAddOrEditScreen() {
@@ -169,47 +177,39 @@ class FeedFragment : Fragment(), ItemListener {
 
     private fun newerPosts() {
         lifecycleScope.launchWhenCreated {
-            viewModel.newerCount.collectLatest { newerCount ->
-                if (newerCount > 0) {
-                    binding.goUpNewer.visibility = View.VISIBLE
-                    binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
-                    binding.goUpNewer.setOnClickListener {
-                        viewModel.newer()
-                        adapter.refresh()
-                        binding.list.smoothScrollToPosition(0)
-                        binding.goUpNewer.visibility = View.GONE
-                    }
-                } else {
-                    binding.goUpNewer.visibility = View.GONE
-                }
-            }
+//            viewModel.newerCount.collectLatest { newerCount ->
+//                if (newerCount > 0) {
+//                    binding.goUpNewer.visibility = View.VISIBLE
+//                    binding.goUpNewer.text = "${getString(R.string.go_up_newer)} +$newerCount"
+//                    binding.goUpNewer.setOnClickListener {
+//                        viewModel.newer()
+//                        adapter.refresh()
+//                        binding.list.smoothScrollToPosition(0)
+//                        binding.goUpNewer.visibility = View.GONE
+//                    }
+//                } else {
+//                    binding.goUpNewer.visibility = View.GONE
+//                }
+//            }
         }
     }
 
     private fun postLoadOnCreate() {
-        binding.list.adapter = adapter
+        binding.list.adapter = postsAdapter.withLoadStateHeaderAndFooter(header = PostsLoaderStateAdapter(),
+            footer = PostsLoaderStateAdapter())
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest {
-                it.map { post ->
-                    postsList.add(post)
-                }
-                adapter.submitData(it)
-                if (postsList.isNotEmpty() || viewModel.serverNoConnection.value == false) {
-                    binding.addOrEditBtn.visibility = View.VISIBLE
-                }
+                postsAdapter.submitData(it)
             }
         }
-        viewModel.state.observe(viewLifecycleOwner) { state ->
-            binding.progress.isVisible = state is FeedModelState.Loading
-            binding.swipeRefreshLayout.isRefreshing = state is FeedModelState.Refreshing
-            if (state is FeedModelState.Error || !CheckNetworkConnection.isNetworkAvailable(
-                    requireContext())
-            ) {
-                Snackbar.make(binding.root, "Error Feed Model", Snackbar.LENGTH_SHORT)
-                    .setAction(R.string.retry) { viewModel.refresh() }
-                    .show()
-            }
+        if (appAuth.authStateFlow.value?.id != null) {
+            binding.addOrEditBtn.visibility = View.VISIBLE
+        }
 
+        lifecycleScope.launchWhenCreated {
+            postsAdapter.loadStateFlow.collectLatest {
+                binding.progress.isVisible = it.refresh is LoadState.Loading
+            }
         }
     }
 
@@ -220,6 +220,7 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     override fun postItemOnClick(post: Post) {
+
         findNavController().navigate(R.id.action_feedFragment_to_detailFragment, Bundle().apply {
             postId = post.id.toString()
         })

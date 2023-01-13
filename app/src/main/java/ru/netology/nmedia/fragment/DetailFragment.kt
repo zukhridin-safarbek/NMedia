@@ -10,9 +10,11 @@ import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.PagingData
+import androidx.paging.filter
+import androidx.paging.flatMap
 import androidx.paging.map
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -21,8 +23,8 @@ import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.`object`.DataTransferArg
 import ru.netology.nmedia.database.AppAuth
-import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.databinding.FragmentDetailBinding
+import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PostAttachmentTypeEnum
 import ru.netology.nmedia.fragment.EditDetailPostFragment.Companion.detailIdPostEdit
 import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
@@ -42,6 +44,7 @@ interface OnInteractionListener {
 class DetailFragment : Fragment(), OnInteractionListener {
     private lateinit var binding: FragmentDetailBinding
     private var postId: Long? = null
+    private val list = mutableListOf<PagingData<Post>>()
 
     @Inject
     lateinit var appAuth: AppAuth
@@ -64,51 +67,49 @@ class DetailFragment : Fragment(), OnInteractionListener {
         arguments?.detailIdPostEdit?.let {
             postId = it.toLong()
         }
+        viewModel.posts.observe(viewLifecycleOwner) { posts ->
+            posts.map { post ->
+                if (postId == post.id) {
+                    with(binding) {
+                        postAuthor.text = post.author
+                        postPublishedDate.text = post.publishedDate
 
-        lifecycleScope.launchWhenCreated {
-            viewModel.data.collectLatest { posts ->
-                posts.map { post ->
-                    if (postId == post.id) {
-                        with(binding) {
-                            postAuthor.text = post.author
-                            postPublishedDate.text = post.publishedDate
-                            postContent.text = post.content
-                            likeIcon.text = post.likes.toString()
-                            shareIcon.text = post.shares.toString()
-                            likeIcon.isChecked = post.likedByMe
-                            viewIcon.text = (12434).toString()
-                            ru.netology.nmedia.adapter.getAvatar("${post.authorAvatar}",
-                                postAvatar)
-                            if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
-                                ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),
-                                    postContentImage)
-                            } else {
-                                groupContentImageAndSeparator.visibility = View.GONE
+                        postContent.text = post.content
+                        likeIcon.text = post.likes.toString()
+                        shareIcon.text = post.shares.toString()
+                        likeIcon.isChecked = post.likedByMe
+                        viewIcon.text = (12434).toString()
+                        ru.netology.nmedia.adapter.getAvatar("${post.authorAvatar}",
+                            postAvatar)
+                        if (post.attachment != null && post.attachment.component3() == PostAttachmentTypeEnum.IMAGE) {
+                            ru.netology.nmedia.adapter.getContentImageFromServer(post.attachment.component1(),
+                                postContentImage)
+                        } else {
+                            groupContentImageAndSeparator.visibility = View.GONE
+                        }
+                        if (!post.videoLink.isNullOrBlank()) {
+                            playBtn.visibility = View.VISIBLE
+                            playBtn.setOnClickListener {
+                                playVideo(post)
                             }
-                            if (!post.videoLink.isNullOrBlank()) {
-                                playBtn.visibility = View.VISIBLE
-                                playBtn.setOnClickListener {
-                                    playVideo(post)
-                                }
-                            } else {
-                                playBtn.visibility = View.GONE
-                            }
+                        } else {
+                            playBtn.visibility = View.GONE
+                        }
 
-                            likeIcon.setOnClickListener {
-                                onLike(post)
-                            }
-                            shareIcon.setOnClickListener {
-                                onShare(post)
-                            }
-                            postMenuBtn.setOnClickListener {
-                                menuBtn(post, it)
-                            }
+                        likeIcon.setOnClickListener {
+                            onLike(post)
+                        }
+                        shareIcon.setOnClickListener {
+                            onShare(post)
+                        }
+                        postMenuBtn.setOnClickListener {
+                            menuBtn(post, it)
                         }
                     }
                 }
-
             }
         }
+
 
     }
 

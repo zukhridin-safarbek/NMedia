@@ -7,11 +7,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.`object`.PostColumns
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.entity.PostEntity
+import ru.netology.nmedia.entity.PostRemoteKeyEntity
 import javax.inject.Singleton
 
 @Singleton
-@Database(entities = [PostEntity::class], version = 1)
+@Database(entities = [PostEntity::class, PostRemoteKeyEntity::class], version = 1)
 abstract class AppDb : RoomDatabase() {
     abstract fun postDao(): PostDao
+    abstract fun postRemoteKeyDao(): PostRemoteKeyDao
 }

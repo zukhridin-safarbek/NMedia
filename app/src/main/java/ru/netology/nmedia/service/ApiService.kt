@@ -11,8 +11,6 @@ import ru.netology.nmedia.dto.RegistrationWithPhoto
 import ru.netology.nmedia.model.PushToken
 
 interface ApiService {
-    @GET("posts")
-    suspend fun getAllPosts(): Response<List<Post>>
 
     @GET("posts/{id}/newer")
     suspend fun getNewer(@Path("id") id: Long): Response<List<Post>>

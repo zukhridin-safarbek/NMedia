@@ -34,8 +34,7 @@ class ShowImage : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lifecycleScope.launchWhenCreated {
-            viewModel.data.collectLatest { posts ->
+            viewModel.posts.observe(viewLifecycleOwner) { posts ->
                 posts.map { post ->
                     if (arguments?.postId?.toLong() == post.id) {
                         getContentImageFromServer(post.attachment?.url.toString(), binding.image)
@@ -43,7 +42,6 @@ class ShowImage : Fragment() {
                     }
                 }
             }
-        }
 
         binding.back.setOnClickListener {
             findNavController().navigateUp()

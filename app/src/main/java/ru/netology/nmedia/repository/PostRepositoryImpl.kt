@@ -1,9 +1,8 @@
 package ru.netology.nmedia.repository
 
-import android.accounts.NetworkErrorException
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.map
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.paging.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -12,7 +11,9 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.database.AppAuth
+import ru.netology.nmedia.database.AppDb
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PostAttachment
@@ -22,24 +23,28 @@ import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.service.ApiService
 import java.io.IOException
 import java.lang.Exception
-import java.lang.RuntimeException
 import javax.inject.Inject
 
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
     private val retrofitService: ApiService,
     private val appAuth: AppAuth,
+    private val postRemoteKeyDao: PostRemoteKeyDao,
+    private val appDb: AppDb
 ) : PostRepository {
-    override val data = Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-        pagingSourceFactory = {
-            PostPagingSource(retrofitService)
-        }
-    ).flow.map {
-        it.map(PostEntity::fromDto)
-    }
-
-    override suspend fun dataForNewer(): List<Post> =
-        retrofitService.getAllPosts().body().orEmpty()
+    private val _posts = MutableLiveData<List<Post>>()
+    override val posts: LiveData<List<Post>> = _posts
+//    @OptIn(ExperimentalPagingApi::class)
+    override val data: Flow<PagingData<Post>> =
+        Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
+            pagingSourceFactory = {
+               PostPagingSource(apiService = retrofitService)
+            },
+//            remoteMediator = PostPagingSource(retrofitService, postDao, postRemoteKeyDao, appDb)
+        ).flow
+//            .map {
+//            it.map(PostEntity::toDto)
+//        }
 
 
     override suspend fun likeByIdAsync(id: Long) {
@@ -73,10 +78,13 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveWithAttachment(post: Post, photo: PhotoModel) {
+            println("retrofitService")
         try {
             val media = upload(photo)
+            println("retrofitService 2  ")
             retrofitService.save(post.copy(attachment = PostAttachment(url = media.id,
                 type = PostAttachmentTypeEnum.IMAGE))).isSuccessful.also {
+                println("also")
                 postDao.save(PostEntity.fromDto(post.copy(attachment = PostAttachment(url = media.id,
                     description = null,
                     type = PostAttachmentTypeEnum.IMAGE),
@@ -98,34 +106,11 @@ class PostRepositoryImpl @Inject constructor(
         if (!response.isSuccessful) {
         }
         return requireNotNull(response.body())
-
-
     }
 
     override suspend fun deleteAsync(id: Long) {
         retrofitService.deleteById(id)
         postDao.removedById(id)
-    }
-
-
-    override suspend fun getAllFromServerAsync(): List<Post> {
-        try {
-            val response = retrofitService.getAllPosts()
-            if (!response.isSuccessful) {
-                throw RuntimeException(response.message())
-            }
-            return response.body()?.also { list ->
-                postDao.deleteAll()
-                val postFromDto = list.map(PostEntity::fromDto)
-                postFromDto.map { postDao.insert(it.copy(isInServer = true)) }
-
-            }
-                ?: throw RuntimeException("Body is null")
-        } catch (e: IOException) {
-            throw NetworkErrorException(e.message)
-        } catch (e: Exception) {
-            throw UnknownError(e.message)
-        }
     }
 
     override suspend fun reSendPostToServer(post: Post) {
