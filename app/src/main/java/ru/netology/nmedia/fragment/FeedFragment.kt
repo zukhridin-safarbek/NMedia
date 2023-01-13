@@ -148,16 +148,12 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun controlSwipeRefreshLayout() {
-        lifecycleScope.launchWhenCreated {
-            postsAdapter.loadStateFlow.collectLatest { state ->
-                state.refresh is LoadState.Loading || state.append is LoadState.Loading || state.prepend is LoadState.Loading
-            }
-        }
         binding.swipeRefreshLayout.setOnRefreshListener {
             postsAdapter.refresh()
             lifecycleScope.launchWhenCreated {
                 postsAdapter.loadStateFlow.collectLatest { state ->
-                    binding.swipeRefreshLayout.isRefreshing = state.refresh is LoadState.Loading
+                    binding.swipeRefreshLayout.isRefreshing =
+                        state.refresh is LoadState.Loading || state.append is LoadState.Loading || state.prepend is LoadState.Loading
                 }
             }
 
@@ -195,8 +191,9 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun postLoadOnCreate() {
-        binding.list.adapter = postsAdapter.withLoadStateHeaderAndFooter(header = PostsLoaderStateAdapter(),
-            footer = PostsLoaderStateAdapter())
+        binding.list.adapter =
+            postsAdapter.withLoadStateHeaderAndFooter(header = PostsLoaderStateAdapter(),
+                footer = PostsLoaderStateAdapter())
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest {
                 postsAdapter.submitData(it)
