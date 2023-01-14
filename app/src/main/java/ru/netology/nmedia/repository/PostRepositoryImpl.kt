@@ -30,21 +30,21 @@ class PostRepositoryImpl @Inject constructor(
     private val retrofitService: ApiService,
     private val appAuth: AppAuth,
     private val postRemoteKeyDao: PostRemoteKeyDao,
-    private val appDb: AppDb
+    private val appDb: AppDb,
 ) : PostRepository {
     private val _posts = MutableLiveData<List<Post>>()
     override val posts: LiveData<List<Post>> = _posts
-//    @OptIn(ExperimentalPagingApi::class)
+    @OptIn(ExperimentalPagingApi::class)
     override val data: Flow<PagingData<Post>> =
         Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
             pagingSourceFactory = {
-               PostPagingSource(apiService = retrofitService)
+                postDao.getPagingSource()
             },
-//            remoteMediator = PostPagingSource(retrofitService, postDao, postRemoteKeyDao, appDb)
+            remoteMediator = PostRemoteMediator(apiService = retrofitService, postDao)
         ).flow
-//            .map {
-//            it.map(PostEntity::toDto)
-//        }
+            .map {
+                it.map(PostEntity::toDto)
+            }
 
 
     override suspend fun likeByIdAsync(id: Long) {
@@ -78,7 +78,7 @@ class PostRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveWithAttachment(post: Post, photo: PhotoModel) {
-            println("retrofitService")
+        println("retrofitService")
         try {
             val media = upload(photo)
             println("retrofitService 2  ")
