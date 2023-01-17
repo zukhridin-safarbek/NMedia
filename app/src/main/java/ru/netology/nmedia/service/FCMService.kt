@@ -71,7 +71,7 @@ class FCMService : FirebaseMessagingService() {
             .setContentTitle(post.author)
             .setStyle(NotificationCompat.BigTextStyle()
                 .bigText(post.content))
-            .setContentText(post.publishedDate)
+            .setContentText(post.published)
             .setLargeIcon(post.videoLink?.let { getLargeImageFromUrl(it) })
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()

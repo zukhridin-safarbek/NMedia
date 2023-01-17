@@ -1,28 +1,22 @@
 package ru.netology.nmedia.viewmodel
 
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.*
-import androidx.lifecycle.switchMap
 import androidx.paging.LoadState
 import androidx.paging.PagingData
-import androidx.paging.flatMap
 import androidx.paging.map
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.database.AppAuth
-import ru.netology.nmedia.model.FeedModel
-import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.util.CheckNetworkConnection
 import java.io.File
 import java.lang.Exception
 import javax.inject.Inject
@@ -34,7 +28,7 @@ private val empty = Post(
     authorAvatar = "",
     authorId = 0L,
     content = "",
-    publishedDate = "now",
+    published = "now",
     likedByMe = false,
     likes = 0,
     shares = 0,
@@ -51,16 +45,22 @@ class PostViewModel @Inject constructor(
     val draftContent = MutableLiveData<String>()
     val draftVideoLink = MutableLiveData<String>()
     val noConnection = MutableLiveData<String?>(null)
+    val postById = MutableLiveData<Post>()
     val posts: LiveData<List<Post>> = repository.posts
-    val data: Flow<PagingData<Post>> = appAuth.authStateFlow.flatMapLatest { myId ->
+    val data: Flow<PagingData<FeedItem>> = appAuth.authStateFlow.flatMapLatest { myId ->
         repository.data.map { posts ->
-            posts.map {
-                it.copy(ownedByMe = it.authorId == myId?.id)
+            posts.map { post ->
+                if (post is Post) {
+                    post.copy(ownedByMe = post.authorId == myId?.id)
+                } else {
+                    post
+                }
             }
         }
     }.flowOn(Dispatchers.Default)
     private val edited = MutableLiveData(empty)
-//    val newerCount: Flow<Int> = data.flatMapLatest {
+
+    //    val newerCount: Flow<Int> = data.flatMapLatest {
 //        repository.getNewerCount(repository.dataForNewer().firstOrNull()?.id ?: 0L)
 //    }.flowOn(Dispatchers.Default)
     private val _photo = MutableLiveData<PhotoModel?>(null)
@@ -74,6 +74,19 @@ class PostViewModel @Inject constructor(
     fun reSend(post: Post) = viewModelScope.launch {
         repository.reSendPostToServer(post)
     }
+
+    fun getPostById(id: Long) =
+        viewModelScope.launch {
+            try {
+                println("id: $id")
+                val post = repository.getPostById(id)
+                postById.value = post.toDto()
+                println(postById.value)
+            } catch (e: Exception) {
+                error(e)
+            }
+        }
+
 
     fun changeContentAndSave(content: String?, url: String?) = viewModelScope.launch {
         val text = content?.trim()
@@ -108,7 +121,7 @@ class PostViewModel @Inject constructor(
 
 
     fun shareByID(id: Long) {
-        TODO()
+        error("link don't given from server")
     }
 
     fun removeById(id: Long) = viewModelScope.launch {

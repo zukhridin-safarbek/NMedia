@@ -29,7 +29,8 @@ class PostRemoteMediator(
                     apiService.getLatest(state.config.initialLoadSize)
                 }
                 LoadType.PREPEND -> {
-                    return MediatorResult.Success(true)
+                    val id = state.firstItemOrNull()?.id ?: return MediatorResult.Success(false)
+                    apiService.getAfter(id, state.config.initialLoadSize)
                 }
                 LoadType.APPEND -> {
                     val id = state.lastItemOrNull()?.id ?: return MediatorResult.Success(false)

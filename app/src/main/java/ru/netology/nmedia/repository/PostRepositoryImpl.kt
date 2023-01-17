@@ -1,5 +1,7 @@
 package ru.netology.nmedia.repository
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.*
@@ -14,16 +16,15 @@ import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.database.AppAuth
 import ru.netology.nmedia.database.AppDb
-import ru.netology.nmedia.dto.Media
-import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.dto.PostAttachment
-import ru.netology.nmedia.dto.PostAttachmentTypeEnum
+import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.service.ApiService
 import java.io.IOException
 import java.lang.Exception
+import java.time.OffsetDateTime
 import javax.inject.Inject
+import kotlin.random.Random
 
 class PostRepositoryImpl @Inject constructor(
     private val postDao: PostDao,
@@ -34,8 +35,10 @@ class PostRepositoryImpl @Inject constructor(
 ) : PostRepository {
     private val _posts = MutableLiveData<List<Post>>()
     override val posts: LiveData<List<Post>> = _posts
+
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalPagingApi::class)
-    override val data: Flow<PagingData<Post>> =
+    override val data: Flow<PagingData<FeedItem>> =
         Pager(config = PagingConfig(pageSize = 10, enablePlaceholders = false),
             pagingSourceFactory = {
                 postDao.getPagingSource()
@@ -44,6 +47,41 @@ class PostRepositoryImpl @Inject constructor(
         ).flow
             .map {
                 it.map(PostEntity::toDto)
+                    .insertSeparators { prev, _ ->
+                        if (prev?.id?.rem(5) == 0L) {
+                            Ad(prev.id, "figma.jpg")
+                        } else {
+                            null
+                        }
+                    }
+                    .insertSeparators { prev, next ->
+                        val now = OffsetDateTime.now().plusDays(1).toEpochSecond()
+                        if (prev is Post && next is Post) {
+                            when {
+                                prev.published != "now" -> {
+                                    val result = (now % prev.published?.toLong()!! / 60) / 60
+                                    when {
+                                        result in 0..24 -> Published(Random.nextLong(), "Сегодня")
+                                        result in 24..48 -> Published(Random.nextLong(), "Вчера")
+                                        result > 48 -> Published(Random.nextLong(), "На прошлой неделе")
+                                        else -> {
+                                            null
+                                        }
+                                    }
+                                }
+                                prev.published == "now" -> {
+                                    Published(Random.nextLong(), "Сегодня")
+                                }
+                                else -> {
+                                    null
+                                }
+                            }
+                        } else {
+                            null
+                        }
+
+
+                    }
             }
 
 
@@ -115,12 +153,15 @@ class PostRepositoryImpl @Inject constructor(
 
     override suspend fun reSendPostToServer(post: Post) {
         try {
-            data.map { postList ->
-                postList.map { postIt ->
-                    if (postIt.isInServer == false && post.id == postIt.id) {
-                        retrofitService.save(post.copy(id = 0L))
-                        postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
+            data.map { feedList ->
+                feedList.map { feedItem ->
+                    if (feedItem is Post) {
+                        if (feedItem.isInServer == false && post.id == feedItem.id) {
+                            retrofitService.save(post.copy(id = 0L))
+                            postDao.insert(PostEntity.fromDto(post.copy(isInServer = true)))
+                        }
                     }
+
                 }
             }.collect()
         } catch (e: IOException) {
@@ -131,7 +172,19 @@ class PostRepositoryImpl @Inject constructor(
 
     }
 
+    override suspend fun getPostById(id: Long): PostEntity {
+        try {
+            return postDao.getPostById(id)
+        } catch (e: Exception) {
+            error(e)
+        }
+
+    }
+
     override fun getNewerCount(id: Long): Flow<Int> = flow {
+        postDao.getAll().map { list ->
+            _posts.postValue(list.map(PostEntity::toDto))
+        }
         while (true) {
             try {
                 delay(10_000L)

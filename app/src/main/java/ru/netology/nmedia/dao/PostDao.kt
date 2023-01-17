@@ -19,7 +19,8 @@ interface PostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(post: List<PostEntity>)
-
+    @Query("SELECT * FROM PostEntity WHERE id = :id")
+    suspend fun getPostById(id: Long): PostEntity
     @Query("UPDATE PostEntity SET content = :content, videoLink = :videoLink WHERE id = :id")
     suspend fun updateContentById(id: Long, content: String, videoLink: String?)
 

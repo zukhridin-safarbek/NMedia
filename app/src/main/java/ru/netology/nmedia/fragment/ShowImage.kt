@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.map
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.adapter.getContentImageFromServer
 import ru.netology.nmedia.databinding.FragmentShowPhotoBinding
@@ -19,6 +20,7 @@ import ru.netology.nmedia.fragment.FeedFragment.Companion.postId
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 @AndroidEntryPoint
+@OptIn(ExperimentalCoroutinesApi::class)
 class ShowImage : Fragment() {
     private lateinit var binding: FragmentShowPhotoBinding
     private val viewModel: PostViewModel by activityViewModels()
@@ -33,15 +35,12 @@ class ShowImage : Fragment() {
         return binding.root
     }
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            viewModel.posts.observe(viewLifecycleOwner) { posts ->
-                posts.map { post ->
-                    if (arguments?.postId?.toLong() == post.id) {
-                        getContentImageFromServer(post.attachment?.url.toString(), binding.image)
-                        binding.showLikes.text = post.likes.toString()
-                    }
-                }
-            }
+        viewModel.postById.observe(viewLifecycleOwner) { post ->
+            getContentImageFromServer(post.attachment?.url.toString(), binding.image)
+            binding.showLikes.text = post.likes.toString()
+        }
 
         binding.back.setOnClickListener {
             findNavController().navigateUp()

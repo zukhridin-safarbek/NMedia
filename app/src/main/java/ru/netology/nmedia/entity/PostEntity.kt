@@ -2,9 +2,7 @@ package ru.netology.nmedia.entity
 
 import androidx.room.Embedded
 import androidx.room.Entity
-import androidx.room.Ignore
 import androidx.room.PrimaryKey
-import org.jetbrains.annotations.NotNull
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PostAttachment
 
@@ -15,7 +13,7 @@ data class PostEntity(
     val author: String,
     val authorId: Long,
     val content: String,
-    val publishedDate: String? = null,
+    val published: String? = null,
     val likedByMe: Boolean = false,
     val likes: Long = 0,
     val authorAvatar: String? = null,
@@ -30,7 +28,7 @@ data class PostEntity(
         author,
         authorId,
         content,
-        publishedDate,
+        published,
         likedByMe,
         likes,
         authorAvatar,
@@ -44,7 +42,7 @@ data class PostEntity(
             post.author,
             post.authorId,
             post.content,
-            post.publishedDate,
+            post.published,
             post.likedByMe,
             post.likes,
             post.authorAvatar,

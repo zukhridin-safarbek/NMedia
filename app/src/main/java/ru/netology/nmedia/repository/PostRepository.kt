@@ -3,12 +3,13 @@ package ru.netology.nmedia.repository
 import androidx.lifecycle.LiveData
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.model.PhotoModel
 
 interface PostRepository {
-    val data: Flow<PagingData<Post>>
+    val data: Flow<PagingData<FeedItem>>
     val posts: LiveData<List<Post>>
     suspend fun likeByIdAsync(id: Long)
     suspend fun dislikeByIdAsync(id: Long)
@@ -18,5 +19,6 @@ interface PostRepository {
     suspend fun deleteAsync(id: Long)
     suspend fun reSendPostToServer(post: Post)
     suspend fun newer()
+    suspend fun getPostById(id: Long): PostEntity
     fun getNewerCount(id: Long):Flow<Int>
 }

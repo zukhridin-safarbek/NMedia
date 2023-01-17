@@ -17,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -136,10 +137,8 @@ class FeedFragment : Fragment(), ItemListener {
             }
 
             override fun showPhoto(post: Post) {
-                findNavController().navigate(R.id.action_feedFragment_to_showPhoto,
-                    Bundle().apply {
-                        postId = post.id.toString()
-                    })
+                viewModel.getPostById(post.id)
+                findNavController().navigate(R.id.action_feedFragment_to_showPhoto)
             }
 
             override fun reSendPostToServerClick(post: Post) {
@@ -155,7 +154,7 @@ class FeedFragment : Fragment(), ItemListener {
             lifecycleScope.launchWhenCreated {
                 postsAdapter.loadStateFlow.collectLatest { state ->
                     binding.swipeRefreshLayout.isRefreshing =
-                        state.refresh is LoadState.Loading || state.append is LoadState.Loading || state.prepend is LoadState.Loading
+                        state.refresh is LoadState.Loading
                 }
             }
 
@@ -193,9 +192,15 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     private fun postLoadOnCreate() {
-        binding.list.adapter =
-            postsAdapter.withLoadStateHeaderAndFooter(header = PostsLoaderStateAdapter(),
-                footer = PostsLoaderStateAdapter())
+        binding.list.apply {
+            adapter =
+                postsAdapter.withLoadStateHeaderAndFooter(header = PostsLoaderStateAdapter(
+                    requireContext()),
+                    footer = PostsLoaderStateAdapter(requireContext()))
+            addItemDecoration(DividerItemDecoration(binding.list.context,
+                DividerItemDecoration.VERTICAL))
+
+        }
         lifecycleScope.launchWhenCreated {
             viewModel.data.collectLatest {
                 postsAdapter.submitData(it)
@@ -220,7 +225,7 @@ class FeedFragment : Fragment(), ItemListener {
     }
 
     override fun postItemOnClick(post: Post) {
-
+        viewModel.getPostById(post.id)
         findNavController().navigate(R.id.action_feedFragment_to_detailFragment, Bundle().apply {
             postId = post.id.toString()
         })

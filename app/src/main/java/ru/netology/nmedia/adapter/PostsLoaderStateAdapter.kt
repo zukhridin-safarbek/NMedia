@@ -1,5 +1,6 @@
 package ru.netology.nmedia.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,20 +10,21 @@ import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.paging.LoadStateAdapter
 import androidx.recyclerview.widget.RecyclerView
+import dagger.hilt.android.qualifiers.ApplicationContext
 import ru.netology.nmedia.R
+import ru.netology.nmedia.databinding.LoaderItemBinding
 
-class PostsLoaderStateAdapter : LoadStateAdapter<PostsLoaderStateAdapter.ItemViewHolder>() {
+class PostsLoaderStateAdapter(@ApplicationContext val context: Context) : LoadStateAdapter<PostsLoaderStateAdapter.ItemViewHolder>() {
     class ItemViewHolder(
-        private val parent: ViewGroup,
-        view: View,
-    ) : RecyclerView.ViewHolder(view) {
-        private val progressBar: ProgressBar = itemView.findViewById(R.id.progress)
+        private val binding: LoaderItemBinding,
+        val context: Context
+    ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(loadState: LoadState) {
             if (loadState is LoadState.Error) {
-                Toast.makeText(parent.context, loadState.error.localizedMessage, Toast.LENGTH_LONG)
+                Toast.makeText(context, loadState.error.localizedMessage, Toast.LENGTH_LONG)
                     .show()
             }
-            progressBar.isVisible = loadState is LoadState.Loading
+            binding.progress.isVisible = loadState is LoadState.Loading
         }
     }
 
@@ -30,9 +32,6 @@ class PostsLoaderStateAdapter : LoadStateAdapter<PostsLoaderStateAdapter.ItemVie
         holder.bind(loadState)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ItemViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(
-            R.layout.loader_item, parent, false)
-        return ItemViewHolder(parent, view)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, loadState: LoadState): ItemViewHolder  = ItemViewHolder(
+        LoaderItemBinding.inflate(LayoutInflater.from(parent.context), parent, false), context)
 }
